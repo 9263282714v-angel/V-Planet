@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Каталог — V-PLANET</title>
+  <meta name="description" content="Диффузоры, свечи, парфюм и гипс V-PLANET. Цена и срок доставки на каждой позиции.">
+  <link rel="icon" href="images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,460;9..144,560&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="catalog">
+  <main id="main" class="wrap">
+    <div class="page-intro">
+      <p class="kicker">Готовые товары</p>
+      <h1 data-catalog-title>Каталог</h1>
+      <p data-catalog-intro></p>
+    </div>
+    <div class="filters" data-filters>
+      <button class="chip" type="button" data-filter="cat" data-value="all">Все</button>
+      <button class="chip" type="button" data-filter="cat" data-value="diffuser">Диффузоры</button>
+      <button class="chip" type="button" data-filter="cat" data-value="candle">Свечи</button>
+      <button class="chip" type="button" data-filter="cat" data-value="perfume">Парфюм</button>
+      <button class="chip" type="button" data-filter="cat" data-value="plaster">Гипс</button>
+      <button class="chip" type="button" data-filter="cat" data-value="set">Наборы</button>
+      <button class="chip" type="button" data-filter="mood" data-value="all">Любое настроение</button>
+      <button class="chip" type="button" data-filter="mood" data-value="bedroom">Спальня</button>
+      <button class="chip" type="button" data-filter="mood" data-value="living">Гостиная</button>
+      <button class="chip" type="button" data-filter="mood" data-value="gift">Подарок</button>
+      <button class="chip" type="button" data-filter="mood" data-value="work">Работа</button>
+      <input class="search" data-search type="search" placeholder="Название или аромат" aria-label="Поиск">
+    </div>
+    <div data-catalog></div>
+  </main>
+  <script src="js/data.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
