@@ -109,6 +109,8 @@
       <div class="mobile-nav" data-mobile hidden>
         ${links.map(([href, label]) => `<a href="${href}">${label}</a>`).join("")}
         <a href="about.html">О мастерской</a>
+        <a href="${VP.whatsapp}">WhatsApp</a>
+        <a href="${VP.phoneHref}">${VP.phone}</a>
       </div>`;
   }
 

@@ -255,6 +255,7 @@ h2 {
   font-family: var(--serif);
   font-size: 22px;
   font-weight: 460;
+  white-space: nowrap;
 }
 
 .season {
@@ -470,6 +471,8 @@ h2 {
   padding: 20px;
   box-shadow: -20px 0 50px rgba(22, 19, 17, 0.12);
 }
+.drawer[hidden],
+.drawer-back[hidden] { display: none !important; }
 .drawer header { display: flex; justify-content: space-between; align-items: center; }
 .drawer h2 { font-size: 34px; }
 .cart-list { overflow: auto; margin: 16px 0; display: grid; gap: 12px; }
@@ -500,13 +503,13 @@ h2 {
 .empty { color: var(--muted); padding: 20px 0 40px; }
 
 .mobile-nav {
-  display: none;
   position: fixed;
   inset: var(--header) 0 0 0;
   background: var(--bg);
   z-index: 29;
   padding: 18px var(--space);
 }
+.mobile-nav[hidden] { display: none; }
 .mobile-nav a { display: block; text-decoration: none; font-family: var(--serif); font-size: 34px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 
 @media (max-width: 980px) {
@@ -522,10 +525,16 @@ h2 {
   .search { margin-left: 0; }
 }
 
+@media (max-width: 720px) {
+  [data-write] { display: none; }
+  .brand span { font-size: 16px; letter-spacing: 0.08em; }
+  .header-actions .solid,
+  .header-actions .ghost { padding-inline: 12px; }
+}
+
 @media (max-width: 640px) {
   .moods, .trust, .grid, .split-links { grid-template-columns: 1fr; }
   .moods a { border-right: 0; border-bottom: 1px solid var(--line); }
-  .header-actions .ghost span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   h1 { font-size: 42px; }
   .band { padding: 24px; }
 }
