@@ -123,6 +123,14 @@ h1, h2, h3, p { margin: 0; }
   box-shadow: 0 8px 18px rgba(196, 71, 42, 0.28);
 }
 .solid:hover { filter: brightness(1.05); }
+.solid:disabled,
+.solid:disabled:hover {
+  background: #e7d5c6;
+  color: #8a7568;
+  box-shadow: none;
+  cursor: not-allowed;
+  filter: none;
+}
 .menu-btn { display: none; }
 
 .hero {
@@ -153,6 +161,7 @@ h1 {
   color: var(--muted);
 }
 .hero-actions { display: flex; gap: 10px; margin-top: 26px; flex-wrap: wrap; }
+a.hero-photo { display: block; color: inherit; text-decoration: none; }
 .hero-photo {
   position: relative;
   background: linear-gradient(160deg, #f8c98a, #e7a0a0 55%, #f3d7b0);
@@ -161,7 +170,30 @@ h1 {
   overflow: hidden;
   box-shadow: 0 24px 50px rgba(120, 48, 24, 0.18);
 }
-.hero-photo img { width: 100%; height: 100%; object-fit: cover; min-height: 560px; }
+.hero-photo > img:first-child { width: 100%; height: 100%; object-fit: cover; min-height: 560px; }
+.hero-logo {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 56px;
+  height: 56px;
+  min-height: 0;
+  object-fit: contain;
+  background: rgba(255, 248, 240, 0.94);
+  border-radius: 50%;
+  padding: 6px;
+}
+.hero-cta {
+  position: absolute;
+  left: 18px;
+  bottom: 62px;
+  background: linear-gradient(180deg, var(--flame), var(--accent));
+  color: #fffaf4;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+}
 .hero-badge {
   position: absolute;
   left: 18px;
@@ -178,10 +210,10 @@ h1 {
 .mood-open { padding: 28px 0 8px; }
 .mood-open h1 { max-width: 12ch; }
 .mood-picks {
-  margin-top: 22px;
+  margin-top: 8px;
   display: grid;
-  grid-template-columns: 1.3fr repeat(4, 1fr);
-  grid-auto-rows: minmax(132px, auto);
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: minmax(148px, auto);
   gap: 12px;
 }
 .mood-picks a {
@@ -394,6 +426,58 @@ h2 {
 }
 .season img { width: 100%; height: 100%; object-fit: cover; border-radius: 24px; min-height: 420px; box-shadow: 0 18px 40px rgba(120, 48, 24, 0.16); }
 .season h3 { font-family: var(--serif); font-size: 36px; font-weight: 460; margin: 8px 0; }
+
+.refill {
+  background: linear-gradient(165deg, #fff6ea, #f3ddc4);
+  border-radius: 28px;
+  padding: 36px 40px;
+  box-shadow: 0 16px 36px rgba(120, 48, 24, 0.08);
+}
+.refill h2 { max-width: 14ch; }
+.refill .lead { max-width: 46ch; }
+
+.season-stories {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.season-story {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  text-decoration: none;
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 22px;
+  min-height: 180px;
+  box-shadow: 0 12px 30px rgba(120, 48, 24, 0.07);
+}
+.season-story h3 {
+  font-family: var(--serif);
+  font-size: 32px;
+  font-weight: 460;
+  margin: 6px 0;
+}
+.season-story p:last-child { color: var(--muted); margin: 0; }
+.season-story.is-soon {
+  background: transparent;
+  box-shadow: none;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+}
+.season-accent { margin: 18px 0 0; }
+.season-accent a { color: var(--accent); font-weight: 600; }
+
+.pair {
+  margin-top: 22px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: #fff6ee;
+  border: 1px solid var(--line);
+}
+.pair h2 { font-size: 28px; margin: 4px 0 8px; }
+.pair h2 a { text-decoration: none; }
+.pair .card-price { margin: 6px 0 12px; }
 
 .band {
   background: linear-gradient(135deg, #8a2e38, #4a1c28 70%);
@@ -643,14 +727,15 @@ h2 {
 @media (max-width: 980px) {
   .nav { display: none; }
   .menu-btn { display: inline-flex; }
-  .hero, .story, .season, .band, .showroom, .product, .b2b-grid, .info-grid, .footer-grid, .impressions {
+  .hero, .story, .season, .band, .showroom, .product, .b2b-grid, .info-grid, .footer-grid, .impressions, .season-stories {
     grid-template-columns: 1fr;
   }
   .mood-picks { grid-template-columns: 1fr 1fr; }
   .mood-photo { grid-row: auto; min-height: 220px; }
   .moods, .trust, .grid { grid-template-columns: 1fr 1fr; }
   .moods a:nth-child(2) { border-right: 0; }
-  .hero-photo, .hero-photo img { min-height: 380px; }
+  .hero-photo, .hero-photo > img:first-child { min-height: 380px; }
+  .refill { padding: 24px; }
   .row { grid-template-columns: 1fr 1fr; }
   .search { margin-left: 0; }
 }
