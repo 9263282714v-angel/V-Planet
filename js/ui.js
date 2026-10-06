@@ -58,6 +58,7 @@
       <article class="card">
         <a class="card-photo" href="product.html?id=${product.id}">
           <img src="${product.image}" alt="${product.imageAlt || product.name}">
+          <span class="arrival">Самовывоз сегодня</span>
         </a>
         <div class="card-meta">${meta}</div>
         <h3><a href="product.html?id=${product.id}">${product.name}</a></h3>
@@ -304,10 +305,24 @@
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
+  function impressionCard(item) {
+    const product = byId[item.productId];
+    if (!product) return "";
+    const meta = [product.format, product.volume].filter(Boolean).join(" · ");
+    return `
+      <article class="impression">
+        <p>${item.text}</p>
+        <a href="product.html?id=${product.id}">${product.name}</a>
+        <span>${meta} · ${money(product.price)}</span>
+      </article>`;
+  }
+
   function initHome() {
     const hits = VP.products.filter((p) => p.hit);
     const root = document.querySelector("[data-hits]");
     if (root) root.innerHTML = hits.map(card).join("");
+    const impressions = document.querySelector("[data-impressions]");
+    if (impressions) impressions.innerHTML = (VP.impressions || []).map(impressionCard).join("");
   }
 
   function initCatalog() {
@@ -425,6 +440,7 @@
             <button class="solid" type="button" data-add-qty>В корзину</button>
           </div>
           <table class="specs">${specs}</table>
+          ${(VP.impressions || []).filter((item) => item.productId === product.id).map((item) => `<blockquote class="impression impression-single"><p>${item.text}</p><span>Впечатление мастерской об этом аромате</span></blockquote>`).join("")}
           <div class="prose">
             <p>${product.description || ""}</p>
             ${use ? `<h2>Как пользоваться</h2><ul>${use}</ul>` : ""}

@@ -175,6 +175,64 @@ h1 {
   font-size: 14px;
 }
 
+.mood-open { padding: 28px 0 8px; }
+.mood-open h1 { max-width: 12ch; }
+.mood-picks {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: 1.3fr repeat(4, 1fr);
+  grid-auto-rows: minmax(132px, auto);
+  gap: 12px;
+}
+.mood-picks a {
+  text-decoration: none;
+  border-radius: 20px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 132px;
+}
+.mood-picks strong { font-family: var(--serif); font-size: 26px; font-weight: 520; line-height: 1.05; }
+.mood-picks span { color: #5c3b32; font-size: 14px; margin-top: 6px; }
+.mood-photo {
+  grid-row: span 2;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
+}
+.mood-photo img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.mood-photo span {
+  position: relative;
+  z-index: 1;
+  margin: auto 12px 12px;
+  align-self: flex-start;
+  background: rgba(255, 248, 240, 0.94);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+.mood-cherry { background: #f3b7c4; }
+.mood-sea { background: #d7ebe4; }
+.mood-pie { background: #f6c48a; }
+.mood-peony { background: #f8d5e4; }
+.impressions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.impression {
+  background: var(--paper);
+  border-radius: 20px;
+  padding: 20px 20px 16px;
+  box-shadow: 0 12px 30px rgba(120, 48, 24, 0.07);
+}
+.impression p { font-family: var(--serif); font-size: 22px; line-height: 1.25; }
+.impression a { display: inline-block; margin-top: 14px; font-weight: 600; color: var(--accent); text-decoration: none; }
+.impression span, .impression-single span { display: block; margin-top: 4px; color: var(--muted); font-size: 14px; }
+.impression-single { margin-top: 8px; }
 .moods {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -253,10 +311,22 @@ h2 {
   box-shadow: 0 16px 36px rgba(120, 48, 24, 0.08);
 }
 .card-photo {
+  position: relative;
   aspect-ratio: 4 / 5;
   background: linear-gradient(180deg, #f8e2c4, #f3c9a4);
   border-radius: 14px;
   overflow: hidden;
+}
+.arrival {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  background: rgba(255, 248, 240, 0.94);
+  color: var(--accent);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
 }
 .card-photo img {
   width: 100%;
@@ -573,9 +643,11 @@ h2 {
 @media (max-width: 980px) {
   .nav { display: none; }
   .menu-btn { display: inline-flex; }
-  .hero, .story, .season, .band, .showroom, .product, .b2b-grid, .info-grid, .footer-grid {
+  .hero, .story, .season, .band, .showroom, .product, .b2b-grid, .info-grid, .footer-grid, .impressions {
     grid-template-columns: 1fr;
   }
+  .mood-picks { grid-template-columns: 1fr 1fr; }
+  .mood-photo { grid-row: auto; min-height: 220px; }
   .moods, .trust, .grid { grid-template-columns: 1fr 1fr; }
   .moods a:nth-child(2) { border-right: 0; }
   .hero-photo, .hero-photo img { min-height: 380px; }

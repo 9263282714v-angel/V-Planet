@@ -13,28 +13,27 @@
 </head>
 <body data-page="home">
   <main id="main">
-    <section class="wrap hero">
+    <section class="wrap mood-open">
       <div>
-        <p class="kicker">Своё производство · Москва · нишевая парфюмерия</p>
-        <h1>Диффузор для <em>настроения</em> комнаты</h1>
-        <p class="lead">Тёмный флакон, деревянная крышка, ароматы Франции и США. Рядом — свеча того же вечера и гипс, который остаётся в интерьере.</p>
-        <div class="hero-actions">
-          <a class="solid" href="catalog.html?cat=diffuser">Смотреть диффузоры</a>
-          <a class="ghost" href="catalog.html?mood=gift">Собрать подарок</a>
-        </div>
+        <p class="kicker">Своё производство · Москва</p>
+        <h1>Как <em>настроение</em>?</h1>
+        <p class="lead">Выберите состояние. Дальше — свои диффузоры, свечи и гипс под него, с ценой и сроком получения.</p>
       </div>
-      <div class="hero-photo">
-        <img src="images/diffuser.jpg" alt="Диффузоры V-PLANET в тёмных флаконах с деревянной крышкой на подносе">
-        <p class="hero-badge">от 3 190 ₽ · флакон 200 мл</p>
-      </div>
+      <nav class="mood-picks" aria-label="Настроение">
+        <a class="mood-photo" href="catalog.html?cat=diffuser">
+          <img src="images/diffuser.jpg" alt="Диффузоры V-PLANET">
+          <span>Смотреть диффузоры</span>
+        </a>
+        <a class="mood-bedroom" href="catalog.html?mood=bedroom"><strong>Тишина спальни</strong><span>Цветочные и мягкие</span></a>
+        <a class="mood-living" href="catalog.html?mood=living"><strong>Гости в дверях</strong><span>Аромат, который встречает</span></a>
+        <a class="mood-gift" href="catalog.html?mood=gift"><strong>Хочу подарить</strong><span>Бокс или свеча, уже упаковано</span></a>
+        <a class="mood-work" href="catalog.html?mood=work"><strong>Собраться за работой</strong><span>Кабинет, зал, ресторан</span></a>
+        <a class="mood-cherry" href="product.html?id=lost-cherry"><strong>Вишня и плед</strong><span>Диффузор Lost Cherry</span></a>
+        <a class="mood-sea" href="product.html?id=sea-oud"><strong>Море и тёплое дерево</strong><span>Диффузор «Море и уд»</span></a>
+        <a class="mood-pie" href="product.html?id=pumpkin"><strong>Тыквенный пирог</strong><span>Свеча-тыква</span></a>
+        <a class="mood-peony" href="product.html?id=peony-100"><strong>Пионы на тумбочке</strong><span>Банка 100 мл</span></a>
+      </nav>
     </section>
-
-    <nav class="wrap moods" aria-label="Настроение">
-      <a class="mood-bedroom" href="catalog.html?mood=bedroom"><strong>Спальня</strong><span>Мягкие цветочные и ягодные</span></a>
-      <a class="mood-living" href="catalog.html?mood=living"><strong>Гостиная</strong><span>Аромат, который встречает гостей</span></a>
-      <a class="mood-gift" href="catalog.html?mood=gift"><strong>Подарок</strong><span>Бокс или свеча, уже можно дарить</span></a>
-      <a class="mood-work" href="catalog.html?mood=work"><strong>Работа</strong><span>Кабинет, зал, ресторан</span></a>
-    </nav>
 
     <section class="wrap trust" aria-label="Коротко о заказе">
       <div><b>Ручная работа</b><span>Каждую свечу заливают в мастерской</span></div>
@@ -45,10 +44,18 @@
 
     <section class="section wrap">
       <div class="section-head">
-        <h2>Сейчас выбирают</h2>
-        <p>Цена, объём и срок получения — сразу на плитке.</p>
+        <h2>Можно забрать</h2>
+        <p>На плитке цена и «самовывоз сегодня» — как дата выдачи, только для Жукова, 51.</p>
       </div>
       <div class="grid" data-hits></div>
+    </section>
+
+    <section class="section wrap">
+      <div class="section-head">
+        <h2>Впечатления</h2>
+        <p>Как звучит аромат. Это слух мастерской, не отзыв покупателя. Живые оценки покупок — на Ozon и Wildberries.</p>
+      </div>
+      <div class="impressions" data-impressions></div>
     </section>
 
     <section class="section wrap">
