@@ -15,25 +15,30 @@
   <main id="main">
     <section class="wrap hero">
       <div>
-        <p class="kicker">Своё производство · Москва · нишевая парфюмерия</p>
-        <h1>Диффузор для настроения комнаты</h1>
-        <p class="lead">Тёмный флакон, деревянная крышка, ароматы Франции и США. Свечи и гипс — если нужен огонь и предмет, который остаётся в интерьере.</p>
-        <div class="hero-actions">
-          <a class="solid" href="catalog.html?cat=diffuser">Смотреть диффузоры</a>
-          <a class="ghost" href="catalog.html?mood=gift">Собрать подарок</a>
-        </div>
+        <p class="kicker">Своё производство · Москва</p>
+        <h1>Какой аромат в доме?</h1>
+        <p class="lead">Выберите настроение — под него свои ароматические диффузоры с ценой и сроком. Свечи и гипс рядом, если захочется больше.</p>
       </div>
-      <div class="hero-photo">
-        <img src="images/diffuser.jpg" alt="Диффузоры V-PLANET в тёмных флаконах с деревянной крышкой на подносе">
-      </div>
+      <a class="hero-photo" href="catalog.html?cat=diffuser">
+        <img src="images/diffuser.jpg" alt="Ароматические диффузоры V-PLANET в тёмном стекле">
+        <img class="hero-logo" src="images/logo.png" alt="">
+        <span class="hero-cta">Смотреть диффузоры</span>
+        <span class="hero-badge">Диффузоры от 3 190 ₽</span>
+      </a>
     </section>
 
-    <nav class="wrap moods" aria-label="Настроение">
-      <a href="catalog.html?mood=bedroom"><strong>Спальня</strong><span>Мягкие цветочные и ягодные</span></a>
-      <a href="catalog.html?mood=living"><strong>Гостиная</strong><span>Аромат, который встречает</span></a>
-      <a href="catalog.html?mood=gift"><strong>Подарок</strong><span>Бокс или свеча, уже упаковано</span></a>
-      <a href="catalog.html?mood=work"><strong>Работа</strong><span>Кабинет, зал, ресторан</span></a>
-    </nav>
+    <section class="wrap mood-open">
+      <nav class="mood-picks" aria-label="Настроение">
+        <a class="mood-bedroom" href="catalog.html?mood=bedroom"><strong>Тишина спальни</strong><span>Мягкий диффузор, который не спорит с покоем</span></a>
+        <a class="mood-living" href="catalog.html?mood=living"><strong>Гости в дверях</strong><span>Аромат у входа: диффузор встречает первым</span></a>
+        <a class="mood-gift" href="catalog.html?mood=gift"><strong>Хочу подарить</strong><span>Бокс или диффузор — уже упаковано</span></a>
+        <a class="mood-work" href="catalog.html?mood=work"><strong>Собраться за работой</strong><span>Древесный диффузор для кабинета и зала</span></a>
+        <a class="mood-cherry" href="product.html?id=lost-cherry"><strong>Вишня и плед</strong><span>Диффузор Lost Cherry · 200 мл</span></a>
+        <a class="mood-sea" href="product.html?id=sea-oud"><strong>Море и тёплое дерево</strong><span>Диффузор «Море и уд» · 200 мл</span></a>
+        <a class="mood-pie" href="product.html?id=pumpkin"><strong>Тыквенный пирог</strong><span>Сезонный акцент · свеча-тыква</span></a>
+        <a class="mood-peony" href="product.html?id=peony-100"><strong>Пионы на тумбочке</strong><span>Свеча 100 мл · добор к диффузору</span></a>
+      </nav>
+    </section>
 
     <section class="wrap trust" aria-label="Коротко о заказе">
       <div><b>Ручная работа</b><span>Каждую свечу заливают в мастерской</span></div>
@@ -44,10 +49,54 @@
 
     <section class="section wrap">
       <div class="section-head">
-        <h2>Сейчас выбирают</h2>
-        <p>Цена, объём и срок получения — сразу на плитке.</p>
+        <h2>Хиты мастерской</h2>
+        <p>На плитке — объём, цена и самовывоз сегодня с Жукова, 51.</p>
       </div>
       <div class="grid" data-hits></div>
+    </section>
+
+    <section class="section wrap">
+      <div class="refill">
+        <p class="kicker">Выгоднее по отдельности</p>
+        <h2>Один аромат — дольше дома</h2>
+        <p class="lead">Диффузор Lost Cherry 200 мл + рефилл 100 мл. Палочки в комплекте. Когда запах тише — просто долейте.</p>
+        <div class="hero-actions">
+          <button class="solid" type="button" disabled>Скоро</button>
+          <a class="ghost" href="product.html?id=lost-cherry">Только диффузор</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap">
+      <div class="section-head">
+        <div>
+          <p class="kicker">Осень в доме</p>
+          <h2>Диффузоры сезона</h2>
+        </div>
+        <p>Четыре аромата в тёмном стекле: от вишни до моря. Тыква — тёплый акцент рядом, не главный герой.</p>
+      </div>
+      <div class="season-stories" data-season></div>
+      <p class="season-accent"><a href="product.html?id=pumpkin">Свеча-тыква · 1 200 ₽ · 35–40 ч</a></p>
+    </section>
+
+    <section class="section wrap">
+      <div class="section-head">
+        <h2>Отзывы</h2>
+        <p>Короткие заметки к товару. Живые оценки покупок — на карточках Ozon и Wildberries.</p>
+      </div>
+      <div class="impressions" data-reviews></div>
+      <div class="shops">
+        <a class="ghost" href="https://www.ozon.ru/seller/v-planet-222539/">Ozon</a>
+        <a class="ghost" href="https://www.wildberries.ru/brands/v-planet">Wildberries</a>
+      </div>
+    </section>
+
+    <section class="section wrap">
+      <div class="section-head">
+        <h2>Как звучит аромат</h2>
+        <p>Как звучит аромат. Это слух мастерской, не отзыв покупателя.</p>
+      </div>
+      <div class="impressions" data-impressions></div>
     </section>
 
     <section class="section wrap">
@@ -65,26 +114,6 @@
           </div>
           <p style="margin-top:18px"><a class="ghost" href="about.html">О мастерской</a></p>
         </div>
-      </div>
-    </section>
-
-    <section class="section wrap">
-      <div class="section-head">
-        <h2>Коллекция сезона</h2>
-        <p>Тыква с запахом пирога. Тёплая, не карнавальная.</p>
-      </div>
-      <div class="season">
-        <img src="images/pumpkin.jpg" alt="Свеча в форме тыквы в фиолетовой стружке">
-        <article>
-          <p class="kicker">Тыквенно-карамельный хруст</p>
-          <h3>Свеча, которая стоит как предмет</h3>
-          <p class="lead">Большая тыква — 1 200 ₽, около 35–40 часов. Четыре миниатюры 4×4 см — 560 ₽ за набор.</p>
-          <p class="eta">Самовывоз сегодня · СДЭК от 2 дней</p>
-          <div class="hero-actions">
-            <a class="solid" href="product.html?id=pumpkin">Тыква с характером</a>
-            <a class="ghost" href="product.html?id=autumn-set">Набор из четырёх</a>
-          </div>
-        </article>
       </div>
     </section>
 

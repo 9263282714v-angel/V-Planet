@@ -5,6 +5,10 @@
   const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
   const page = document.body.dataset.page || "";
 
+  function priced(product) {
+    return !!product && typeof product.price === "number" && product.price > 0;
+  }
+
   function loadCart() {
     try {
       return JSON.parse(localStorage.getItem("vp-cart") || "[]");
@@ -18,9 +22,10 @@
     updateCount();
   }
   function cartItems() {
-    return loadCart().filter((item) => byId[item.id]);
+    return loadCart().filter((item) => priced(byId[item.id]));
   }
   function addToCart(id, qty) {
+    if (!priced(byId[id])) return;
     const items = cartItems();
     const found = items.find((item) => item.id === id);
     if (found) found.qty += qty;
@@ -52,12 +57,13 @@
   }
 
   function card(product) {
-    const mood = product.moods.map(moodLabel).slice(0, 2).join(" · ");
-    const meta = [product.format, product.volume, product.burn].filter(Boolean).join(" · ");
+    const mood = (product.moods || []).map(moodLabel).filter(Boolean).slice(0, 2).join(" · ");
+    const meta = [product.format, product.volume].filter(Boolean).join(" · ");
     return `
       <article class="card">
         <a class="card-photo" href="product.html?id=${product.id}">
           <img src="${product.image}" alt="${product.imageAlt || product.name}">
+          <span class="arrival">Самовывоз сегодня</span>
         </a>
         <div class="card-meta">${meta}</div>
         <h3><a href="product.html?id=${product.id}">${product.name}</a></h3>
@@ -304,10 +310,57 @@
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
+  function impressionCard(item) {
+    const product = byId[item.productId];
+    if (!product) return "";
+    const meta = [product.format, product.volume].filter(Boolean).join(" · ");
+    return `
+      <article class="impression">
+        <p>${item.text}</p>
+        <a href="product.html?id=${product.id}">${product.name}</a>
+        <span>${meta} · ${money(product.price)}</span>
+      </article>`;
+  }
+
+  function reviewCard(item) {
+    const product = byId[item.productId];
+    const name = product ? product.name : "";
+    const href = product ? `product.html?id=${product.id}` : "catalog.html";
+    return `
+      <article class="impression">
+        <p>«${item.text}»</p>
+        <a href="${href}">${name}</a>
+        <span>${item.date}</span>
+      </article>`;
+  }
+
+  function seasonCard(product) {
+    if (!priced(product)) {
+      return `<article class="season-story is-soon"><p class="kicker">Диффузор</p><h3>Скоро</h3></article>`;
+    }
+    return `
+      <a class="season-story" href="product.html?id=${product.id}">
+        <p class="kicker">${[product.volume, money(product.price)].filter(Boolean).join(" · ")}</p>
+        <h3>${product.name}</h3>
+        <p>${product.seasonNote || ""}</p>
+      </a>`;
+  }
+
   function initHome() {
-    const hits = VP.products.filter((p) => p.hit);
+    const hits = VP.products.filter((p) => p.hit && priced(p));
     const root = document.querySelector("[data-hits]");
     if (root) root.innerHTML = hits.map(card).join("");
+    const season = document.querySelector("[data-season]");
+    if (season) {
+      season.innerHTML = VP.products
+        .filter((p) => p.hit && p.category === "diffuser")
+        .map(seasonCard)
+        .join("");
+    }
+    const reviews = document.querySelector("[data-reviews]");
+    if (reviews) reviews.innerHTML = (VP.reviews || []).map(reviewCard).join("");
+    const impressions = document.querySelector("[data-impressions]");
+    if (impressions) impressions.innerHTML = (VP.impressions || []).map(impressionCard).join("");
   }
 
   function initCatalog() {
@@ -335,6 +388,7 @@
       const visual = [];
       const list = [];
       VP.products.forEach((product) => {
+        if (!priced(product)) return;
         if (state.cat !== "all" && !matches(product, state.cat)) return;
         if (state.mood !== "all" && !product.moods.includes(state.mood)) return;
         if (state.q && !`${product.name} ${product.lead || ""} ${product.format || ""}`.toLowerCase().includes(state.q)) return;
@@ -398,24 +452,40 @@
       return;
     }
     document.title = `${product.name} — V-PLANET`;
-    const specs = (product.specs || []).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
+    const specRows = [...(product.specs || [])];
+    if (product.lifespan) specRows.push(["Срок жизни аромата", product.lifespan]);
+    if (product.coverage) specRows.push(["Площадь", product.coverage]);
+    const specs = specRows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
     const use = (product.use || []).map((line) => `<li>${line}</li>`).join("");
+    const pair = byId[product.pair];
+    const pairHtml = priced(pair)
+      ? `<aside class="pair">
+          <p class="kicker">Пара</p>
+          <h2><a href="product.html?id=${pair.id}">${pair.name}</a></h2>
+          <p>${[pair.format, pair.volume].filter(Boolean).join(" · ")}</p>
+          <p class="card-price">${money(pair.price)}</p>
+          <button class="solid" type="button" data-add="${pair.id}">В корзину</button>
+        </aside>`
+      : "";
+    const quotes = [
+      ...(VP.reviews || []).filter((item) => item.productId === product.id).map((item) => `<blockquote class="impression impression-single"><p>«${item.text}»</p><span>${item.date}</span></blockquote>`),
+      ...(VP.impressions || []).filter((item) => item.productId === product.id).map((item) => `<blockquote class="impression impression-single"><p>${item.text}</p><span>Слух мастерской, не отзыв покупателя</span></blockquote>`)
+    ].join("");
     const related = VP.products
-      .filter((item) => item.id !== product.id && item.image && (item.id === product.pair || item.moods.some((mood) => product.moods.includes(mood))))
-      .sort((a, b) => Number(b.id === product.pair) - Number(a.id === product.pair))
+      .filter((item) => item.id !== product.id && item.id !== product.pair && priced(item) && item.image && (item.moods || []).some((mood) => (product.moods || []).includes(mood)))
       .slice(0, 3);
+    const canBuy = priced(product);
     root.innerHTML = `
       <article class="product wrap">
         <div>
-          <div class="product-photo">${product.image ? `<img src="${product.image}" alt="${product.imageAlt || product.name}">` : `<div class="page-intro"><p class="kicker">${product.format || ""}</p><h2>${product.name}</h2><p>Фото этой формы добавим следующим шагом. Цена и срок уже можно положить в корзину.</p></div>`}</div>
+          <div class="product-photo">${product.image ? `<img src="${product.image}" alt="${product.imageAlt || product.name}">` : `<div class="page-intro"><p class="kicker">${product.format || ""}</p><h2>${product.name}</h2><p>Фото и цена этой позиции появятся, когда мастерская их назовёт.</p></div>`}</div>
           ${product.imageCaption ? `<p class="caption">${product.imageCaption}</p>` : ""}
         </div>
         <div>
-          <p class="kicker">${catLabel(product.category)} · ${product.moods.map(moodLabel).join(" · ")}</p>
+          <p class="kicker">${[catLabel(product.category), product.volume, (product.moods || []).map(moodLabel).filter(Boolean).join(" · ")].filter(Boolean).join(" · ")}</p>
           <h1>${product.name}</h1>
-          <p class="lead">${product.lead || ""}</p>
-          <div class="price-lg">${money(product.price)}</div>
-          <p class="eta">${VP.eta}</p>
+          ${product.lead ? `<p class="lead">${product.lead}</p>` : ""}
+          ${canBuy ? `<div class="price-lg">${money(product.price)}</div><p class="eta">${VP.eta}</p>
           <div style="margin-top:16px">
             <span class="qty">
               <button type="button" data-local-qty="-1">−</button>
@@ -423,18 +493,20 @@
               <button type="button" data-local-qty="1">+</button>
             </span>
             <button class="solid" type="button" data-add-qty>В корзину</button>
-          </div>
-          <table class="specs">${specs}</table>
+          </div>` : `<p class="price-lg">Скоро</p><button class="solid" type="button" disabled>Скоро</button>`}
+          ${specs ? `<table class="specs">${specs}</table>` : ""}
+          ${quotes}
           <div class="prose">
-            <p>${product.description || ""}</p>
+            ${product.description ? `<p>${product.description}</p>` : ""}
             ${use ? `<h2>Как пользоваться</h2><ul>${use}</ul>` : ""}
+            ${pairHtml}
           </div>
         </div>
       </article>
-      <section class="section wrap related">
+      ${related.length ? `<section class="section wrap related">
         <div class="section-head"><h2>Рядом по настроению</h2></div>
         <div class="grid">${related.map(card).join("")}</div>
-      </section>`;
+      </section>` : ""}`;
     let qty = 1;
     root.addEventListener("click", (event) => {
       const step = event.target.closest("[data-local-qty]");
