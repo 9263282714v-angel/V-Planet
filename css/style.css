@@ -56,13 +56,10 @@ h1, h2, h3, p { margin: 0; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: left top;
+  object-position: center;
   z-index: -1;
   pointer-events: none;
 }
-.site-bg.folds { object-position: left center; }
-.site-bg.layers-right { object-position: right center; }
-.site-bg.folds-right { object-position: right top; }
 
 .wrap {
   width: min(var(--max), calc(100% - var(--space) * 2));
