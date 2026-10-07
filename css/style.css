@@ -228,17 +228,39 @@ a.hero-photo { display: block; color: inherit; text-decoration: none; }
   gap: 12px;
 }
 .mood-picks a {
+  position: relative;
+  overflow: hidden;
   text-decoration: none;
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  min-height: 132px;
+  min-height: 148px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 16px 34px rgba(70, 60, 84, 0.1);
+  transition: transform 0.2s ease;
+}
+.mood-picks a:hover { transform: translateY(-3px); }
+.mood-silk {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+.mood-picks a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(255, 252, 254, 0.9) 0%, rgba(255, 252, 254, 0.42) 48%, rgba(255, 252, 254, 0.12) 100%);
+  pointer-events: none;
 }
 .mood-picks a { color: var(--ink); }
+.mood-picks strong, .mood-picks span { position: relative; z-index: 1; }
 .mood-picks strong { font-family: var(--serif); font-size: 26px; font-weight: 520; line-height: 1.05; }
-.mood-picks span { color: #5c4c52; font-size: 14px; margin-top: 6px; }
+.mood-picks span { color: #4e4650; font-size: 14px; margin-top: 6px; }
 .mood-photo {
   grid-row: span 2;
   padding: 0;
@@ -258,10 +280,10 @@ a.hero-photo { display: block; color: inherit; text-decoration: none; }
   padding: 8px 12px;
   font-weight: 600;
 }
-.mood-cherry { background: #f0c4ce; }
-.mood-sea { background: #d5e4de; }
-.mood-pie { background: #f3d3ae; }
-.mood-peony { background: #f3d0de; }
+.mood-cherry::after { background: linear-gradient(to top, rgba(255, 244, 246, 0.92), rgba(236, 196, 206, 0.22)); }
+.mood-sea::after { background: linear-gradient(to top, rgba(246, 250, 248, 0.92), rgba(198, 220, 214, 0.22)); }
+.mood-pie::after { background: linear-gradient(to top, rgba(255, 248, 240, 0.92), rgba(236, 206, 168, 0.22)); }
+.mood-peony::after { background: linear-gradient(to top, rgba(255, 244, 248, 0.92), rgba(232, 190, 206, 0.22)); }
 .impressions {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -295,10 +317,10 @@ a.hero-photo { display: block; color: inherit; text-decoration: none; }
   transition: transform 0.2s ease;
 }
 .moods a:hover { transform: translateY(-3px); }
-.mood-bedroom { background: #f3d5d8; }
-.mood-living { background: #f3e6c8; }
-.mood-gift { background: #f3d0c0; }
-.mood-work { background: #e7e0d8; }
+.mood-bedroom::after { background: linear-gradient(to top, rgba(255, 248, 249, 0.92), rgba(228, 206, 212, 0.18)); }
+.mood-living::after { background: linear-gradient(to top, rgba(255, 250, 242, 0.92), rgba(226, 210, 176, 0.2)); }
+.mood-gift::after { background: linear-gradient(to top, rgba(255, 246, 242, 0.92), rgba(228, 196, 184, 0.22)); }
+.mood-work::after { background: linear-gradient(to top, rgba(248, 246, 244, 0.92), rgba(214, 206, 198, 0.22)); }
 .moods a { color: var(--ink); }
 .moods strong {
   display: block;
