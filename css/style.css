@@ -18,30 +18,10 @@
 }
 
 * { box-sizing: border-box; }
-html {
-  scroll-behavior: smooth;
-  background-color: #f3f2f4;
-  background-image: url("../images/bg-layers.jpg");
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: left top;
-  background-attachment: fixed;
-}
-html:has(body[data-page="catalog"]),
-html:has(body[data-page="about"]) {
-  background-image: url("../images/bg-folds.jpg");
-  background-position: left center;
-}
-html:has(body[data-page="product"]),
-html:has(body[data-page="delivery"]) {
-  background-image: url("../images/bg-layers.jpg");
-  background-position: right center;
-}
-html:has(body[data-page="b2b"]) {
-  background-image: url("../images/bg-folds.jpg");
-  background-position: right top;
-}
+html { scroll-behavior: smooth; background: #f3f2f4; }
 body {
+  position: relative;
+  z-index: 0;
   margin: 0;
   background: transparent;
   color: var(--ink);
@@ -69,6 +49,20 @@ h1, h2, h3, p { margin: 0; }
   z-index: 20;
 }
 .skip:focus { top: 12px; }
+
+.site-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left top;
+  z-index: -1;
+  pointer-events: none;
+}
+.site-bg.folds { object-position: left center; }
+.site-bg.layers-right { object-position: right center; }
+.site-bg.folds-right { object-position: right top; }
 
 .wrap {
   width: min(var(--max), calc(100% - var(--space) * 2));
@@ -337,23 +331,26 @@ a.hero-photo { display: block; color: inherit; text-decoration: none; }
 
 .section { padding: 64px 0; }
 .section.cloth {
+  position: relative;
+  z-index: 0;
   width: 100%;
   max-width: none;
   margin-inline: 0;
-  background-repeat: no-repeat;
-  background-size: cover;
   padding: 72px max(var(--space), calc((100% - var(--max)) / 2));
 }
-.cloth-folds {
-  background-image: url("../images/bg-folds.jpg");
-  background-position: left center;
+.cloth-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: left center;
+  z-index: -1;
+  pointer-events: none;
 }
-.cloth-layers {
-  background-image: url("../images/bg-layers.jpg");
-  background-position: center top;
-}
-.cloth-pos-right { background-position: right center; }
-.cloth-pos-left { background-position: left center; }
+.cloth-bg.pos-right { object-position: right center; }
+.cloth-bg.pos-left { object-position: left center; }
+.cloth-bg.pos-top { object-position: center top; }
 .section-head {
   display: flex;
   justify-content: space-between;
