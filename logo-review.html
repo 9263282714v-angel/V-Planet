@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>V-PLANET — пять логотипов на проверку</title>
+  <link rel="icon" href="images/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,460;9..144,560&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .review-lead { padding-top: 36px; max-width: 62ch; }
+    .review-lead h1 { font-size: clamp(36px, 5vw, 58px); }
+    .pick-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin: 28px 0 8px;
+    }
+    .pick-row a {
+      text-decoration: none;
+      text-align: center;
+      background: rgba(255,252,254,0.55);
+      border-radius: 22px;
+      padding: 14px 8px 12px;
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+    .pick-row img {
+      width: 112px;
+      height: 112px;
+      margin: 0 auto 8px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    .pick-row strong { display: block; font-size: 14px; }
+    .pick-row span { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .logo-try { margin: 42px auto 18px; }
+    .try-head {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .try-head img {
+      width: 148px;
+      height: 148px;
+      border-radius: 50%;
+      object-fit: cover;
+      flex: 0 0 auto;
+      box-shadow: 0 12px 28px rgba(70,60,84,0.12);
+    }
+    .try-head h2 { font-family: var(--serif); font-weight: 460; font-size: 32px; }
+    .try-head p { color: #3e383c; max-width: 52ch; margin-top: 6px; }
+    .review-bar { position: static; border-radius: 18px; border: 1px solid rgba(255,255,255,0.72); margin-bottom: 14px; }
+    .review-bar .header-inner { width: 100%; margin: 0; padding-inline: 12px; }
+    .logo-try .hero-photo,
+    .logo-try .hero-photo > img:first-child { min-height: 320px; height: 320px; }
+    @media (max-width: 900px) {
+      .pick-row { grid-template-columns: repeat(2, 1fr); }
+      .try-head { align-items: flex-start; }
+      .try-head img { width: 96px; height: 96px; }
+    }
+    @media (max-width: 720px) {
+      .review-bar .header-inner { padding-inline: 8px; gap: 8px; }
+      .review-bar .header-actions .solid { padding-inline: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <img class="site-bg" src="images/bg-main.jpg" alt="">
+  <main id="main">
+    <section class="wrap review-lead">
+      <p class="kicker">На проверку · логотип пока не заменён</p>
+      <h1>Пять вариантов из новых знаков</h1>
+      <p class="lead">Под сотами светлая или прозрачная подложка. Ниже каждый знак стоит в шапке и на фото, как на сайте.</p>
+      <nav class="pick-row" aria-label="Варианты">
+        <a href="#v1"><img src="images/logo-options/01-a-light.png" alt=""><strong>1 · Цветной</strong><span>Светлые соты</span></a>
+        <a href="#v2"><img src="images/logo-options/02-a-clear.png" alt=""><strong>2 · Цветной</strong><span>Прозрачные соты</span></a>
+        <a href="#v3"><img src="images/logo-options/03-wine.png" alt=""><strong>3 · Винный</strong><span>Прозрачные соты</span></a>
+        <a href="#v4"><img src="images/logo-options/04-gold.png" alt=""><strong>4 · Золотой</strong><span>Прозрачные соты</span></a>
+        <a href="#v5"><img src="images/logo-options/05-black.png" alt=""><strong>5 · Чёрный</strong><span>Прозрачные соты</span></a>
+      </nav>
+    </section>
+
+    <article class="logo-try wrap" id="v1">
+      <div class="try-head">
+        <img src="images/logo-options/01-a-light.png" alt="">
+        <div>
+          <p class="kicker">Вариант 1</p>
+          <h2>Цветной, светлые соты</h2>
+          <p>Новый знак A-lux: золотые соты, под ними жемчужная подложка. Кольца, буква и V-PLANET.RU цветные.</p>
+        </div>
+      </div>
+      <header class="site-header review-bar">
+        <div class="header-inner">
+          <a class="brand" href="#v1"><img src="images/logo-options/01-a-light.png" alt=""><span>V-PLANET</span></a>
+          <nav class="nav" aria-label="Разделы"><a href="catalog.html?cat=diffuser">Диффузоры</a><a href="catalog.html?cat=candle">Свечи</a><a href="catalog.html?cat=perfume">Парфюм</a><a href="catalog.html?cat=plaster">Гипс</a><a href="b2b.html">B2B</a><a href="delivery.html">Доставка</a></nav>
+          <div class="header-actions"><button class="menu-btn ghost" type="button">Меню</button><button class="ghost" type="button" data-write>Написать</button><button class="solid" type="button">Корзина <span>0</span></button></div>
+        </div>
+      </header>
+      <div class="hero">
+        <div>
+          <p class="kicker">Своё производство · Москва</p>
+          <h1>Какой аромат в доме?</h1>
+          <p class="lead">Знак в круге шапки и на фото диффузора.</p>
+        </div>
+        <a class="hero-photo" href="#v1">
+          <img src="images/diffuser.jpg" alt="">
+          <img class="hero-logo" src="images/logo-options/01-a-light.png" alt="">
+          <span class="hero-cta">Смотреть диффузоры</span>
+          <span class="hero-badge">Диффузоры от 3 190 ₽</span>
+        </a>
+      </div>
+    </article>
+
+    <article class="logo-try wrap" id="v2">
+      <div class="try-head">
+        <img src="images/logo-options/02-a-clear.png" alt="">
+        <div>
+          <p class="kicker">Вариант 2</p>
+          <h2>Цветной, прозрачные соты</h2>
+          <p>Тот же цветной знак. Жемчуг из ячеек убран: сквозь соты виден шёлк страницы.</p>
+        </div>
+      </div>
+      <header class="site-header review-bar">
+        <div class="header-inner">
+          <a class="brand" href="#v2"><img src="images/logo-options/02-a-clear.png" alt=""><span>V-PLANET</span></a>
+          <nav class="nav" aria-label="Разделы"><a href="catalog.html?cat=diffuser">Диффузоры</a><a href="catalog.html?cat=candle">Свечи</a><a href="catalog.html?cat=perfume">Парфюм</a><a href="catalog.html?cat=plaster">Гипс</a><a href="b2b.html">B2B</a><a href="delivery.html">Доставка</a></nav>
+          <div class="header-actions"><button class="menu-btn ghost" type="button">Меню</button><button class="ghost" type="button" data-write>Написать</button><button class="solid" type="button">Корзина <span>0</span></button></div>
+        </div>
+      </header>
+      <div class="hero">
+        <div>
+          <p class="kicker">Своё производство · Москва</p>
+          <h1>Какой аромат в доме?</h1>
+          <p class="lead">На фото ячейки пропускают картинку, линии сот остаются.</p>
+        </div>
+        <a class="hero-photo" href="#v2">
+          <img src="images/diffuser.jpg" alt="">
+          <img class="hero-logo" src="images/logo-options/02-a-clear.png" alt="">
+          <span class="hero-cta">Смотреть диффузоры</span>
+          <span class="hero-badge">Диффузоры от 3 190 ₽</span>
+        </a>
+      </div>
+    </article>
+
+    <article class="logo-try wrap" id="v3">
+      <div class="try-head">
+        <img src="images/logo-options/03-wine.png" alt="">
+        <div>
+          <p class="kicker">Вариант 3</p>
+          <h2>Винный, прозрачные соты</h2>
+          <p>Монохром винного цвета. Соты, кольца и буква — один тон, подложка прозрачная.</p>
+        </div>
+      </div>
+      <header class="site-header review-bar">
+        <div class="header-inner">
+          <a class="brand" href="#v3"><img src="images/logo-options/03-wine.png" alt=""><span>V-PLANET</span></a>
+          <nav class="nav" aria-label="Разделы"><a href="catalog.html?cat=diffuser">Диффузоры</a><a href="catalog.html?cat=candle">Свечи</a><a href="catalog.html?cat=perfume">Парфюм</a><a href="catalog.html?cat=plaster">Гипс</a><a href="b2b.html">B2B</a><a href="delivery.html">Доставка</a></nav>
+          <div class="header-actions"><button class="menu-btn ghost" type="button">Меню</button><button class="ghost" type="button" data-write>Написать</button><button class="solid" type="button">Корзина <span>0</span></button></div>
+        </div>
+      </header>
+      <div class="hero">
+        <div>
+          <p class="kicker">Своё производство · Москва</p>
+          <h1>Какой аромат в доме?</h1>
+          <p class="lead">Один цвет с кнопками сайта.</p>
+        </div>
+        <a class="hero-photo" href="#v3">
+          <img src="images/diffuser.jpg" alt="">
+          <img class="hero-logo" src="images/logo-options/03-wine.png" alt="">
+          <span class="hero-cta">Смотреть диффузоры</span>
+          <span class="hero-badge">Диффузоры от 3 190 ₽</span>
+        </a>
+      </div>
+    </article>
+
+    <article class="logo-try wrap" id="v4">
+      <div class="try-head">
+        <img src="images/logo-options/04-gold.png" alt="">
+        <div>
+          <p class="kicker">Вариант 4</p>
+          <h2>Золотой, прозрачные соты</h2>
+          <p>Монохром золота. Под сотами ничего нет — виден фон страницы.</p>
+        </div>
+      </div>
+      <header class="site-header review-bar">
+        <div class="header-inner">
+          <a class="brand" href="#v4"><img src="images/logo-options/04-gold.png" alt=""><span>V-PLANET</span></a>
+          <nav class="nav" aria-label="Разделы"><a href="catalog.html?cat=diffuser">Диффузоры</a><a href="catalog.html?cat=candle">Свечи</a><a href="catalog.html?cat=perfume">Парфюм</a><a href="catalog.html?cat=plaster">Гипс</a><a href="b2b.html">B2B</a><a href="delivery.html">Доставка</a></nav>
+          <div class="header-actions"><button class="menu-btn ghost" type="button">Меню</button><button class="ghost" type="button" data-write>Написать</button><button class="solid" type="button">Корзина <span>0</span></button></div>
+        </div>
+      </header>
+      <div class="hero">
+        <div>
+          <p class="kicker">Своё производство · Москва</p>
+          <h1>Какой аромат в доме?</h1>
+          <p class="lead">Тише цветного знака, ближе к металлу колец.</p>
+        </div>
+        <a class="hero-photo" href="#v4">
+          <img src="images/diffuser.jpg" alt="">
+          <img class="hero-logo" src="images/logo-options/04-gold.png" alt="">
+          <span class="hero-cta">Смотреть диффузоры</span>
+          <span class="hero-badge">Диффузоры от 3 190 ₽</span>
+        </a>
+      </div>
+    </article>
+
+    <article class="logo-try wrap" id="v5">
+      <div class="try-head">
+        <img src="images/logo-options/05-black.png" alt="">
+        <div>
+          <p class="kicker">Вариант 5</p>
+          <h2>Чёрный, прозрачные соты</h2>
+          <p>Монохром чёрного. Соты прозрачные. На светлом шёлке читается резче остальных.</p>
+        </div>
+      </div>
+      <header class="site-header review-bar">
+        <div class="header-inner">
+          <a class="brand" href="#v5"><img src="images/logo-options/05-black.png" alt=""><span>V-PLANET</span></a>
+          <nav class="nav" aria-label="Разделы"><a href="catalog.html?cat=diffuser">Диффузоры</a><a href="catalog.html?cat=candle">Свечи</a><a href="catalog.html?cat=perfume">Парфюм</a><a href="catalog.html?cat=plaster">Гипс</a><a href="b2b.html">B2B</a><a href="delivery.html">Доставка</a></nav>
+          <div class="header-actions"><button class="menu-btn ghost" type="button">Меню</button><button class="ghost" type="button" data-write>Написать</button><button class="solid" type="button">Корзина <span>0</span></button></div>
+        </div>
+      </header>
+      <div class="hero">
+        <div>
+          <p class="kicker">Своё производство · Москва</p>
+          <h1>Какой аромат в доме?</h1>
+          <p class="lead">Самый графичный из пяти.</p>
+        </div>
+        <a class="hero-photo" href="#v5">
+          <img src="images/diffuser.jpg" alt="">
+          <img class="hero-logo" src="images/logo-options/05-black.png" alt="">
+          <span class="hero-cta">Смотреть диффузоры</span>
+          <span class="hero-badge">Диффузоры от 3 190 ₽</span>
+        </a>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
