@@ -100,6 +100,28 @@
     return `
       <a class="skip" href="#main">К содержанию</a>
       <header class="site-header">
+        <div class="topbar">
+          <button class="city-btn" type="button" data-city-open aria-expanded="false" aria-controls="city-pop">
+            <svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5a7 7 0 0 0-7 7c0 5.1 6.1 11.3 6.4 11.6a.9.9 0 0 0 1.2 0C12.9 20.8 19 14.6 19 9.5a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>
+            <span data-city-label>Москва</span>
+          </button>
+          <form class="top-search" action="catalog.html" method="get" role="search">
+            <label class="sr" for="top-q">Поиск</label>
+            <input id="top-q" name="q" type="search" placeholder="Диффузор, свеча, аромат" autocomplete="off" enterkeyhint="search">
+          </form>
+          <div class="city-pop" id="city-pop" data-city-pop hidden role="dialog" aria-label="Город">
+            <p class="city-ask" data-city-ask>Ваш город — <b data-city-guess>Москва</b>?</p>
+            <p class="city-note">Самовывоз сегодня — Жукова, 51, если это Москва. В другой город отправим СДЭК.</p>
+            <div class="city-actions" data-city-actions>
+              <button class="solid" type="button" data-city-yes>Да, верно</button>
+              <button class="ghost" type="button" data-city-other>Другой город</button>
+            </div>
+            <div class="city-list" data-city-list hidden>
+              <input type="search" data-city-filter placeholder="Найти город" aria-label="Найти город">
+              <div class="city-options" data-city-options></div>
+            </div>
+          </div>
+        </div>
         <div class="header-inner">
           <a class="brand" href="index.html"><img src="images/logo.png" alt=""><span>V-PLANET</span></a>
           <nav class="nav" aria-label="Разделы">
@@ -208,6 +230,191 @@
       </aside>`;
   }
 
+  const CITIES = ["Москва", "Санкт-Петербург", "Казань", "Новосибирск", "Екатеринбург", "Нижний Новгород", "Краснодар", "Ростов-на-Дону", "Самара", "Воронеж", "Уфа", "Красноярск", "Пермь", "Волгоград", "Тюмень", "Саратов", "Челябинск", "Омск", "Калининград", "Сочи", "Иркутск", "Владивосток", "Хабаровск", "Ярославль", "Тула", "Рязань"];
+  const EN_CITY = {
+    Moscow: "Москва",
+    "Saint Petersburg": "Санкт-Петербург",
+    "St Petersburg": "Санкт-Петербург",
+    Kazan: "Казань",
+    Novosibirsk: "Новосибирск",
+    Yekaterinburg: "Екатеринбург",
+    "Nizhny Novgorod": "Нижний Новгород",
+    Krasnodar: "Краснодар",
+    "Rostov-on-Don": "Ростов-на-Дону",
+    Samara: "Самара",
+    Voronezh: "Воронеж",
+    Ufa: "Уфа",
+    Krasnoyarsk: "Красноярск",
+    Perm: "Пермь",
+    Volgograd: "Волгоград",
+    Tyumen: "Тюмень",
+    Saratov: "Саратов",
+    Chelyabinsk: "Челябинск",
+    Omsk: "Омск",
+    Kaliningrad: "Калининград",
+    Sochi: "Сочи",
+    Irkutsk: "Иркутск",
+    Vladivostok: "Владивосток",
+    Khabarovsk: "Хабаровск",
+    Yaroslavl: "Ярославль",
+    Tula: "Тула",
+    Ryazan: "Рязань"
+  };
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
+
+  function ruCity(data) {
+    const raw = (data && data.city) || "";
+    if (/[а-яё]/i.test(raw)) return raw;
+    return EN_CITY[raw] || "Москва";
+  }
+
+  function initCity() {
+    const label = document.querySelector("[data-city-label]");
+    const pop = document.querySelector("[data-city-pop]");
+    const guessEl = document.querySelector("[data-city-guess]");
+    const ask = document.querySelector("[data-city-ask]");
+    const actions = document.querySelector("[data-city-actions]");
+    const list = document.querySelector("[data-city-list]");
+    const options = document.querySelector("[data-city-options]");
+    const filter = document.querySelector("[data-city-filter]");
+    const openBtn = document.querySelector("[data-city-open]");
+    if (!label || !pop || !openBtn) return;
+
+    const saved = localStorage.getItem("vp-city");
+    if (saved) {
+      label.textContent = saved;
+      guessEl.textContent = saved;
+    }
+
+    function setCity(name, confirmed) {
+      const next = (name || "").trim() || "Москва";
+      localStorage.setItem("vp-city", next);
+      if (confirmed) localStorage.setItem("vp-city-ok", "1");
+      label.textContent = next;
+      guessEl.textContent = next;
+    }
+
+    function renderOptions(query) {
+      const q = query.trim().toLowerCase();
+      const found = CITIES.filter((name) => name.toLowerCase().includes(q));
+      const buttons = found.map((name) => `<button type="button" data-city-pick="${esc(name)}">${esc(name)}</button>`).join("");
+      const typed = query.trim();
+      const custom = typed && !CITIES.some((name) => name.toLowerCase() === typed.toLowerCase())
+        ? `<button type="button" data-city-pick="${esc(typed)}">Доставить в «${esc(typed)}»</button>`
+        : "";
+      options.innerHTML = buttons + custom || `<p class="city-empty">Напишите город — отправим СДЭК.</p>`;
+    }
+
+    function showAsk() {
+      ask.hidden = false;
+      actions.hidden = false;
+      list.hidden = true;
+      pop.hidden = false;
+      openBtn.setAttribute("aria-expanded", "true");
+    }
+
+    function showList() {
+      ask.hidden = true;
+      actions.hidden = true;
+      list.hidden = false;
+      pop.hidden = false;
+      openBtn.setAttribute("aria-expanded", "true");
+      renderOptions(filter.value || "");
+      filter.focus();
+    }
+
+    function closePop(later) {
+      pop.hidden = true;
+      openBtn.setAttribute("aria-expanded", "false");
+      if (later && localStorage.getItem("vp-city-ok") !== "1") sessionStorage.setItem("vp-city-later", "1");
+    }
+
+    openBtn.addEventListener("click", () => {
+      if (!pop.hidden && list.hidden === false) closePop(false);
+      else showList();
+    });
+    document.querySelector("[data-city-yes]").addEventListener("click", () => {
+      setCity(guessEl.textContent, true);
+      closePop(false);
+    });
+    document.querySelector("[data-city-other]").addEventListener("click", showList);
+    filter.addEventListener("input", () => renderOptions(filter.value));
+    options.addEventListener("click", (event) => {
+      const pick = event.target.closest("[data-city-pick]");
+      if (!pick) return;
+      setCity(pick.dataset.cityPick, true);
+      closePop(false);
+    });
+    document.addEventListener("click", (event) => {
+      if (pop.hidden) return;
+      if (event.target.closest("[data-city-pop]") || event.target.closest("[data-city-open]")) return;
+      closePop(true);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !pop.hidden) closePop(true);
+    });
+
+    if (localStorage.getItem("vp-city-ok") === "1" || sessionStorage.getItem("vp-city-later") === "1") return;
+
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 2500);
+    fetch("https://ipwho.is/", { signal: ctrl.signal })
+      .then((res) => res.json())
+      .then((data) => {
+        if (localStorage.getItem("vp-city-ok") === "1") return;
+        const next = ruCity(data);
+        setCity(next, false);
+        if (pop.hidden) showAsk();
+      })
+      .catch(() => {
+        if (localStorage.getItem("vp-city-ok") === "1") return;
+        showAsk();
+      })
+      .finally(() => clearTimeout(timeout));
+  }
+
+  function initVibe() {
+    const stage = document.querySelector("[data-vibe]");
+    if (!stage) return;
+    const slides = [...stage.querySelectorAll("[data-vibe-slide]")];
+    const bar = document.querySelector("[data-vibe-bar]");
+    let index = 0;
+    let timer = 0;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function show(next) {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        const on = i === index;
+        slide.classList.toggle("is-on", on);
+        slide.setAttribute("aria-hidden", on ? "false" : "true");
+      });
+      if (!bar || reduce) return;
+      bar.classList.remove("is-run");
+      void bar.offsetWidth;
+      bar.classList.add("is-run");
+    }
+
+    function stop() { clearInterval(timer); }
+    function start() {
+      stop();
+      if (reduce) return;
+      timer = setInterval(() => show(index + 1), 4400);
+    }
+
+    stage.addEventListener("mouseenter", stop);
+    stage.addEventListener("mouseleave", start);
+    stage.addEventListener("focusin", stop);
+    stage.addEventListener("focusout", start);
+    document.querySelector("[data-vibe-prev]")?.addEventListener("click", () => { show(index - 1); start(); });
+    document.querySelector("[data-vibe-next]")?.addEventListener("click", () => { show(index + 1); start(); });
+    show(0);
+    start();
+  }
+
   function mountChrome() {
     document.body.insertAdjacentHTML("afterbegin", header());
     document.body.insertAdjacentHTML("beforeend", footer() + `<div class="drawer-back" data-back hidden></div>` + cartDrawer());
@@ -304,10 +511,26 @@
       if (event.key === "Escape") closeCart();
     });
 
+    const topSearch = document.querySelector(".top-search");
+    const qParam = new URLSearchParams(location.search).get("q");
+    if (topSearch && qParam) topSearch.q.value = qParam;
+    topSearch?.addEventListener("submit", (event) => {
+      if (page !== "catalog") return;
+      event.preventDefault();
+      const field = document.querySelector("[data-search]");
+      if (!field) return;
+      field.value = topSearch.q.value;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+    });
+
     const headerEl = document.querySelector(".site-header");
-    const onScroll = () => headerEl.classList.toggle("is-stuck", window.scrollY > 4);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const syncChrome = () => {
+      document.documentElement.style.setProperty("--chrome", headerEl.offsetHeight + "px");
+      headerEl.classList.toggle("is-stuck", window.scrollY > 4);
+    };
+    syncChrome();
+    window.addEventListener("scroll", syncChrome, { passive: true });
+    window.addEventListener("resize", syncChrome);
   }
 
   function impressionCard(item) {
@@ -361,6 +584,7 @@
     if (reviews) reviews.innerHTML = (VP.reviews || []).map(reviewCard).join("");
     const impressions = document.querySelector("[data-impressions]");
     if (impressions) impressions.innerHTML = (VP.impressions || []).map(impressionCard).join("");
+    initVibe();
   }
 
   function initCatalog() {
@@ -370,7 +594,7 @@
     const state = {
       cat: params.get("cat") || "all",
       mood: params.get("mood") || "all",
-      q: ""
+      q: (params.get("q") || "").trim().toLowerCase()
     };
     const title = document.querySelector("[data-catalog-title]");
     const intro = document.querySelector("[data-catalog-intro]");
@@ -384,6 +608,14 @@
       machine: "Аппарат для зала, офиса, ресторана или большого дома."
     };
 
+    function matchesQuery(product, q) {
+      const moodText = (product.moods || []).map(moodLabel).join(" ");
+      const hay = `${product.name} ${product.lead || ""} ${product.description || ""} ${product.seasonNote || ""} ${product.format || ""} ${product.volume || ""} ${moodText}`.toLowerCase();
+      if (hay.includes(q)) return true;
+      if (q.length >= 4 && hay.includes(q.slice(0, -1))) return true;
+      return false;
+    }
+
     function apply() {
       const visual = [];
       const list = [];
@@ -391,7 +623,7 @@
         if (!priced(product)) return;
         if (state.cat !== "all" && !matches(product, state.cat)) return;
         if (state.mood !== "all" && !product.moods.includes(state.mood)) return;
-        if (state.q && !`${product.name} ${product.lead || ""} ${product.format || ""}`.toLowerCase().includes(state.q)) return;
+        if (state.q && !matchesQuery(product, state.q)) return;
         (product.listOnly || !product.image ? list : visual).push(product);
       });
       const groups = {};
@@ -408,7 +640,7 @@
       root.innerHTML = `
         ${visual.length ? `<div class="grid">${visual.map(card).join("")}</div>` : ""}
         ${listHtml}
-        ${!visual.length && !list.length ? `<p class="empty">В этом сочетании пока пусто. Снимите настроение или откройте весь каталог.</p>` : ""}`;
+        ${!visual.length && !list.length ? `<p class="empty">${state.q ? "Ничего не нашлось. Попробуйте другое слово." : "В этом сочетании пока пусто. Снимите настроение или откройте весь каталог."}</p>` : ""}`;
       if (title) {
         const catName = state.cat === "all" ? "Каталог" : catLabel(state.cat);
         const moodName = state.mood === "all" ? "" : moodLabel(state.mood);
@@ -424,8 +656,10 @@
       const url = new URL(location.href);
       url.searchParams.delete("cat");
       url.searchParams.delete("mood");
+      url.searchParams.delete("q");
       if (state.cat !== "all") url.searchParams.set("cat", state.cat);
       if (state.mood !== "all") url.searchParams.set("mood", state.mood);
+      if (state.q) url.searchParams.set("q", state.q);
       history.replaceState(null, "", url);
     }
 
@@ -435,8 +669,12 @@
       state[button.dataset.filter] = button.dataset.value;
       apply();
     });
-    document.querySelector("[data-search]").addEventListener("input", (event) => {
+    const searchInput = document.querySelector("[data-search]");
+    if (searchInput && params.get("q")) searchInput.value = params.get("q");
+    searchInput.addEventListener("input", (event) => {
       state.q = event.target.value.trim().toLowerCase();
+      const top = document.querySelector(".top-search input");
+      if (top && top.value !== event.target.value) top.value = event.target.value;
       apply();
     });
     apply();
@@ -534,6 +772,7 @@
 
   mountChrome();
   bind();
+  initCity();
   initHome();
   initCatalog();
   initProduct();
