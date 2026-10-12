@@ -108,6 +108,7 @@
           <form class="top-search" action="catalog.html" method="get" role="search">
             <label class="sr" for="top-q">Поиск</label>
             <input id="top-q" name="q" type="search" placeholder="Диффузор, свеча, аромат" autocomplete="off" enterkeyhint="search">
+            <button class="top-find" type="submit">Найти</button>
           </form>
           <div class="city-pop" id="city-pop" data-city-pop hidden role="dialog" aria-label="Город">
             <p class="city-ask" data-city-ask>Ваш город — <b data-city-guess>Москва</b>?</p>
