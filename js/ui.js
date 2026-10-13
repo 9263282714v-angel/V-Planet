@@ -602,7 +602,7 @@
     const intros = {
       all: "Готовые вещи мастерской: диффузоры, свечи, парфюм, гипс. Цена и срок получения стоят на каждой плитке.",
       diffuser: "Тёмный флакон, деревянная крышка, палочки из микрофибры. Объёмы линейки — 100, 200 и 500 мл. В витрине сейчас флаконы, у которых есть цена.",
-      candle: "Ручная работа. Растительные воски: кокос, соя, пчелиный. Без парафина и стеарина. Коктейльная свеча на гелевом воске отмечена отдельно.",
+      candle: "Ручная работа. Кокосовый и пчелиный воск. Без парафина и стеарина. Коктейльная свеча на гелевом воске отмечена отдельно.",
       perfume: "Интерьерный парфюм для текстиля и флорентийское саше для шкафа. Сейчас они входят в бокс Wild Beauty.",
       plaster: "Свечи в гипсовых формах, техника «мрамор». Рисунок у каждой штуки свой. Форму можно оставить в интерьере.",
       set: "Наборы, которые уже можно дарить.",
@@ -690,7 +690,6 @@
       root.innerHTML = `<div class="page-intro"><h1>Такой позиции нет</h1><p><a href="catalog.html">Вернуться в каталог</a></p></div>`;
       return;
     }
-    document.title = `${product.name} — V-PLANET`;
     const specRows = [...(product.specs || [])];
     if (product.lifespan) specRows.push(["Срок жизни аромата", product.lifespan]);
     if (product.coverage) specRows.push(["Площадь", product.coverage]);
@@ -714,6 +713,19 @@
       .filter((item) => item.id !== product.id && item.id !== product.pair && priced(item) && item.image && (item.moods || []).some((mood) => (product.moods || []).includes(mood)))
       .slice(0, 3);
     const canBuy = priced(product);
+    const siblings = product.group
+      ? VP.products.filter((item) => item.group === product.group && priced(item))
+      : [];
+    const scents = siblings.length > 1
+      ? `<div class="scents" aria-label="Аромат">${siblings.map((item) => `<a href="product.html?id=${item.id}"${item.id === product.id ? ' class="is-on" aria-current="true"' : ""}>${item.name}</a>`).join("")}</div>`
+      : "";
+    const groupTitle = {
+      "diffuser-200": `Аромадиффузор с палочками ${product.name}, 200 мл — V-PLANET`,
+      "glass-250": `Ароматическая свеча в стакане ${product.name}, 250 мл — V-PLANET`,
+      "glass-350": `Ароматическая свеча в стакане ${product.name}, 350 мл — V-PLANET`,
+      "jar-100": `Свеча в банке ${product.name}, 100 мл — V-PLANET`
+    };
+    document.title = groupTitle[product.group] || `${product.name} — V-PLANET`;
     root.innerHTML = `
       <article class="product wrap">
         <div>
@@ -723,6 +735,7 @@
         <div>
           <p class="kicker">${[catLabel(product.category), product.volume, (product.moods || []).map(moodLabel).filter(Boolean).join(" · ")].filter(Boolean).join(" · ")}</p>
           <h1>${product.name}</h1>
+          ${scents}
           ${product.lead ? `<p class="lead">${product.lead}</p>` : ""}
           ${canBuy ? `<div class="price-lg">${money(product.price)}</div><p class="eta">${VP.eta}</p>
           <div style="margin-top:16px">
@@ -757,6 +770,40 @@
     });
   }
 
+  function initWorld() {
+    const root = document.querySelector("[data-world]");
+    if (!root) return;
+    const id = new URLSearchParams(location.search).get("id");
+    const world = (VP.worlds || []).find((item) => item.id === id);
+    if (!world) {
+      root.innerHTML = `<div class="page-intro"><h1>Такого мира нет</h1><p><a href="index.html">На главную</a></p></div>`;
+      return;
+    }
+    document.title = world.seoTitle;
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", world.seoDescription);
+    const products = VP.products.filter((product) => product.world === world.id && priced(product));
+    const visual = products.filter((product) => product.image && !product.listOnly);
+    const list = products.filter((product) => !product.image || product.listOnly);
+    const empty = {
+      flower: "Бутоны и букеты поставим на полку, когда Вера подтвердит, что на снимках её изделия.",
+      ar: "Свечи с QR-кодом ещё не выложены отдельными позициями. Обычные свечи этой пометки не получают."
+    };
+    root.innerHTML = `
+      <div class="world-cover">
+        <div>
+          <p class="kicker">Мир</p>
+          <h1>${world.h1}</h1>
+          <p class="lead">${world.line}</p>
+          <p class="eta">${VP.eta}</p>
+        </div>
+        <img src="${world.image}" alt="${world.imageAlt || ""}">
+      </div>
+      ${visual.length ? `<div class="grid">${visual.map(card).join("")}</div>` : ""}
+      ${list.length ? `<div class="list-block"><h3>Ещё в этом мире</h3><p class="eta">${VP.eta}</p>${list.map(row).join("")}</div>` : ""}
+      ${!products.length ? `<p class="empty">${empty[world.id] || "В этом мире пока нет позиций с ценой."}</p>` : ""}`;
+  }
+
   function initB2B() {
     const form = document.querySelector("[data-b2b]");
     if (!form) return;
@@ -777,5 +824,6 @@
   initHome();
   initCatalog();
   initProduct();
+  initWorld();
   initB2B();
 })();
