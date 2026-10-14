@@ -575,6 +575,10 @@
     const hits = VP.products.filter((p) => p.hit && priced(p));
     const root = document.querySelector("[data-hits]");
     if (root) root.innerHTML = hits.map(card).join("");
+    const spring = document.querySelector("[data-spring]");
+    if (spring) {
+      spring.innerHTML = VP.products.filter((product) => product.springHome && priced(product)).map(card).join("");
+    }
     const season = document.querySelector("[data-season]");
     if (season) {
       season.innerHTML = VP.products
@@ -718,7 +722,7 @@
       ? VP.products.filter((item) => item.group === product.group && priced(item))
       : [];
     const scents = siblings.length > 1
-      ? `<div class="scents" aria-label="Аромат">${siblings.map((item) => `<a href="product.html?id=${item.id}"${item.id === product.id ? ' class="is-on" aria-current="true"' : ""}>${item.name}</a>`).join("")}</div>`
+      ? `<div class="scents" aria-label="${product.option ? "Размер" : "Аромат"}">${siblings.map((item) => `<a href="product.html?id=${item.id}"${item.id === product.id ? ' class="is-on" aria-current="true"' : ""}>${item.option || item.name}</a>`).join("")}</div>`
       : "";
     const groupTitle = {
       "diffuser-200": `Аромадиффузор с палочками ${product.name}, 200 мл — V-PLANET`,
@@ -730,7 +734,8 @@
     root.innerHTML = `
       <article class="product wrap">
         <div>
-          <div class="product-photo">${product.image ? `<img src="${product.image}" alt="${product.imageAlt || product.name}">` : `<div class="page-intro"><p class="kicker">${product.format || ""}</p><h2>${product.name}</h2><p>Фото и цена этой позиции появятся, когда мастерская их назовёт.</p></div>`}</div>
+          <div class="product-photo">${product.image ? `<img src="${product.image}" alt="${product.imageAlt || product.name}" data-main-photo>` : `<div class="page-intro"><p class="kicker">${product.format || ""}</p><h2>${product.name}</h2><p>Фото и цена этой позиции появятся, когда мастерская их назовёт.</p></div>`}</div>
+          ${(product.gallery || []).length ? `<div class="product-gallery">${[product.image, ...product.gallery].filter(Boolean).map((src) => `<button type="button" data-photo="${src}"><img src="${src}" alt=""></button>`).join("")}</div>` : ""}
           ${product.imageCaption ? `<p class="caption">${product.imageCaption}</p>` : ""}
         </div>
         <div>
@@ -768,6 +773,9 @@
         root.querySelector("[data-local]").textContent = String(qty);
       }
       if (event.target.closest("[data-add-qty]")) addToCart(product.id, qty);
+      const thumb = event.target.closest("[data-photo]");
+      const main = root.querySelector("[data-main-photo]");
+      if (thumb && main) main.src = thumb.dataset.photo;
     });
   }
 

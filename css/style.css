@@ -527,6 +527,9 @@ a.hero-photo { display: block; color: inherit; text-decoration: none; }
 }
 .world-cover img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 28px; }
 .world-cover + .grid, .world-cover + .list-block { margin-top: 28px; }
+.product-gallery { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.product-gallery button { border: 0; padding: 0; background: transparent; cursor: pointer; border-radius: 12px; overflow: hidden; }
+.product-gallery img { width: 76px; height: 76px; object-fit: cover; display: block; }
 .scents { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 .scents a {
   text-decoration: none;
