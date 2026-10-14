@@ -148,6 +148,7 @@
       <footer class="site-footer">
         <div class="wrap footer-grid">
           <div>
+            <img class="footer-logo" src="images/logo.png" alt="V-PLANET">
             <h3>V-PLANET</h3>
             <p>Мастерская Веры и Михаила Пятых. Свечи, диффузоры и гипс ручной работы. Москва.</p>
           </div>
