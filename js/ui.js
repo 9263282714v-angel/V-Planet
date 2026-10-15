@@ -75,16 +75,23 @@
   function card(product) {
     const mood = (product.moods || []).map(moodLabel).filter(Boolean).slice(0, 2).join(" · ");
     const meta = [product.format, product.volume].filter(Boolean).join(" · ");
+    const options = product.option && product.group
+      ? VP.products.filter((item) => item.group === product.group && item.option && priced(item))
+      : [];
+    const pills = options.length > 1
+      ? `<div class="scents card-options" role="group" aria-label="Количество">${options.map((item) => `<button type="button" data-card-option="${item.id}" class="${item.id === product.id ? "is-on" : ""}" aria-pressed="${item.id === product.id}">${item.option}</button>`).join("")}</div>`
+      : "";
     return `
       <article class="card">
-        <a class="card-photo" href="product.html?id=${product.id}">
+        <a class="card-photo" href="product.html?id=${product.id}" data-card-link>
           <img src="${product.image}" alt="${product.imageAlt || product.name}">
           <span class="arrival">Самовывоз сегодня</span>
         </a>
-        <div class="card-meta">${meta}</div>
-        <h3><a href="product.html?id=${product.id}">${product.name}</a></h3>
+        <div class="card-meta" data-card-meta>${meta}</div>
+        <h3><a href="product.html?id=${product.id}" data-card-link>${product.name}</a></h3>
         <p class="card-line">${mood}</p>
-        <div class="card-price">${money(product.price)}</div>
+        ${pills}
+        <div class="card-price" data-card-price>${money(product.price)}</div>
         <p class="eta">${VP.eta}</p>
         <button class="solid" type="button" data-add="${product.id}">В корзину</button>
       </article>`;
@@ -223,7 +230,10 @@
             </div>`;
         }).join("")
       : `<p class="empty">Корзина пустая. Выберите диффузор или свечу — цена уже на плитке.</p>`;
-    const orderText = items.map((item) => `${byId[item.id].name} × ${item.qty} — ${money(byId[item.id].price * item.qty)}`).join("\n");
+    const orderText = items.map((item) => {
+      const p = byId[item.id];
+      return `${p.name}${p.option ? ` (${p.option})` : ""} × ${item.qty} — ${money(p.price * item.qty)}`;
+    }).join("\n");
     return `
       <aside class="drawer" data-drawer hidden>
         <header>
@@ -471,6 +481,28 @@
         addToCart(add.dataset.add, 1);
         return;
       }
+      const opt = event.target.closest("[data-card-option]");
+      if (opt) {
+        const chosen = byId[opt.dataset.cardOption];
+        const cardEl = opt.closest(".card");
+        if (!chosen || !cardEl) return;
+        cardEl.querySelectorAll("[data-card-option]").forEach((btn) => {
+          const on = btn === opt;
+          btn.classList.toggle("is-on", on);
+          btn.setAttribute("aria-pressed", String(on));
+        });
+        const metaEl = cardEl.querySelector("[data-card-meta]");
+        if (metaEl) metaEl.textContent = [chosen.format, chosen.volume].filter(Boolean).join(" · ");
+        const priceEl = cardEl.querySelector("[data-card-price]");
+        if (priceEl) priceEl.textContent = money(chosen.price);
+        const addBtn = cardEl.querySelector("[data-add]");
+        if (addBtn) addBtn.dataset.add = chosen.id;
+        cardEl.querySelectorAll("[data-card-link]").forEach((link) => {
+          link.setAttribute("href", `product.html?id=${chosen.id}`);
+        });
+        rewritePreviewLinks(cardEl);
+        return;
+      }
       const qty = event.target.closest("[data-qty]");
       if (qty) {
         const item = cartItems().find((entry) => entry.id === qty.dataset.qty);
@@ -647,6 +679,7 @@
       const list = [];
       VP.products.forEach((product) => {
         if (!priced(product)) return;
+        if (product.option && VP.products.find((item) => item.group === product.group && item.option)?.id !== product.id) return;
         if (product.collection === "spring" && !state.q) return;
         if (state.cat !== "all" && !matches(product, state.cat)) return;
         if (state.mood !== "all" && !product.moods.includes(state.mood)) return;
@@ -814,7 +847,15 @@
     document.title = world.seoTitle;
     const meta = document.querySelector('meta[name="description"]');
     if (meta) meta.setAttribute("content", world.seoDescription);
-    const products = VP.products.filter((product) => product.world === world.id && priced(product));
+    const seenGroups = new Set();
+    const products = VP.products.filter((product) => {
+      if (product.world !== world.id || !priced(product)) return false;
+      if (product.option && product.group) {
+        if (seenGroups.has(product.group)) return false;
+        seenGroups.add(product.group);
+      }
+      return true;
+    });
     const visual = products.filter((product) => product.image && !product.listOnly);
     const list = products.filter((product) => !product.image || product.listOnly);
     const empty = {
