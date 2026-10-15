@@ -4,6 +4,26 @@
 
   const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
   const page = document.body.dataset.page || "";
+  function pageParams() {
+    const raw = location.search.slice(1);
+    if (!/^https?:\/\//i.test(raw)) return new URLSearchParams(raw);
+    const idx = raw.indexOf("?");
+    return new URLSearchParams(idx >= 0 ? raw.slice(idx + 1) : "");
+  }
+  function rewritePreviewLinks(scope) {
+    if (!/htmlpreview\.github\.io/i.test(location.hostname)) return;
+    const base = document.querySelector("base")?.href || location.search.slice(1);
+    (scope || document).querySelectorAll("a[href]").forEach((a) => {
+      const href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || /^(https?:|mailto:|tel:|\/\/)/i.test(href)) return;
+      if (!/\.html(\?|$)/i.test(href)) return;
+      a.href = `${location.origin}${location.pathname}?${new URL(href, base).href}`;
+    });
+  }
+
+  function priced(product) {
+    return !!product && typeof product.price === "number" && product.price > 0;
+  }
 
   function loadCart() {
     try {
@@ -18,9 +38,10 @@
     updateCount();
   }
   function cartItems() {
-    return loadCart().filter((item) => byId[item.id]);
+    return loadCart().filter((item) => priced(byId[item.id]));
   }
   function addToCart(id, qty) {
+    if (!priced(byId[id])) return;
     const items = cartItems();
     const found = items.find((item) => item.id === id);
     if (found) found.qty += qty;
@@ -52,17 +73,25 @@
   }
 
   function card(product) {
-    const mood = product.moods.map(moodLabel).slice(0, 2).join(" · ");
-    const meta = [product.format, product.volume, product.burn].filter(Boolean).join(" · ");
+    const mood = (product.moods || []).map(moodLabel).filter(Boolean).slice(0, 2).join(" · ");
+    const meta = [product.format, product.volume].filter(Boolean).join(" · ");
+    const options = product.option && product.group
+      ? VP.products.filter((item) => item.group === product.group && item.option && priced(item))
+      : [];
+    const pills = options.length > 1
+      ? `<div class="scents card-options" role="group" aria-label="Количество">${options.map((item) => `<button type="button" data-card-option="${item.id}" class="${item.id === product.id ? "is-on" : ""}" aria-pressed="${item.id === product.id}">${item.option}</button>`).join("")}</div>`
+      : "";
     return `
       <article class="card">
-        <a class="card-photo" href="product.html?id=${product.id}">
+        <a class="card-photo" href="product.html?id=${product.id}" data-card-link>
           <img src="${product.image}" alt="${product.imageAlt || product.name}">
+          <span class="arrival">Самовывоз сегодня</span>
         </a>
-        <div class="card-meta">${meta}</div>
-        <h3><a href="product.html?id=${product.id}">${product.name}</a></h3>
+        <div class="card-meta" data-card-meta>${meta}</div>
+        <h3><a href="product.html?id=${product.id}" data-card-link>${product.name}</a></h3>
         <p class="card-line">${mood}</p>
-        <div class="card-price">${money(product.price)}</div>
+        ${pills}
+        <div class="card-price" data-card-price>${money(product.price)}</div>
         <p class="eta">${VP.eta}</p>
         <button class="solid" type="button" data-add="${product.id}">В корзину</button>
       </article>`;
@@ -94,6 +123,29 @@
     return `
       <a class="skip" href="#main">К содержанию</a>
       <header class="site-header">
+        <div class="topbar">
+          <button class="city-btn" type="button" data-city-open aria-expanded="false" aria-controls="city-pop">
+            <svg class="pin" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5a7 7 0 0 0-7 7c0 5.1 6.1 11.3 6.4 11.6a.9.9 0 0 0 1.2 0C12.9 20.8 19 14.6 19 9.5a7 7 0 0 0-7-7Zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Z"/></svg>
+            <span data-city-label>Москва</span>
+          </button>
+          <form class="top-search" action="catalog.html" method="get" role="search">
+            <label class="sr" for="top-q">Поиск</label>
+            <input id="top-q" name="q" type="search" placeholder="Диффузор, свеча, аромат" autocomplete="off" enterkeyhint="search">
+            <button class="top-find" type="submit">Найти</button>
+          </form>
+          <div class="city-pop" id="city-pop" data-city-pop hidden role="dialog" aria-label="Город">
+            <p class="city-ask" data-city-ask>Ваш город — <b data-city-guess>Москва</b>?</p>
+            <p class="city-note">Самовывоз сегодня — Жукова, 51, если это Москва. В другой город отправим СДЭК.</p>
+            <div class="city-actions" data-city-actions>
+              <button class="solid" type="button" data-city-yes>Да, верно</button>
+              <button class="ghost" type="button" data-city-other>Другой город</button>
+            </div>
+            <div class="city-list" data-city-list hidden>
+              <input type="search" data-city-filter placeholder="Найти город" aria-label="Найти город">
+              <div class="city-options" data-city-options></div>
+            </div>
+          </div>
+        </div>
         <div class="header-inner">
           <a class="brand" href="index.html"><img src="images/logo.png" alt=""><span>V-PLANET</span></a>
           <nav class="nav" aria-label="Разделы">
@@ -119,6 +171,7 @@
       <footer class="site-footer">
         <div class="wrap footer-grid">
           <div>
+            <img class="footer-logo" src="images/logo.png" alt="V-PLANET">
             <h3>V-PLANET</h3>
             <p>Мастерская Веры и Михаила Пятых. Свечи, диффузоры и гипс ручной работы. Москва.</p>
           </div>
@@ -166,7 +219,7 @@
               <img src="${product.image || "images/logo.png"}" alt="">
               <div>
                 <b>${product.name}</b>
-                <div class="eta">${product.volume || ""}</div>
+                <div class="eta">${[product.format, product.volume].filter(Boolean).join(" · ")}</div>
                 <div class="qty">
                   <button type="button" data-qty="${product.id}" data-delta="-1">−</button>
                   <span>${item.qty}</span>
@@ -177,7 +230,10 @@
             </div>`;
         }).join("")
       : `<p class="empty">Корзина пустая. Выберите диффузор или свечу — цена уже на плитке.</p>`;
-    const orderText = items.map((item) => `${byId[item.id].name} × ${item.qty} — ${money(byId[item.id].price * item.qty)}`).join("\n");
+    const orderText = items.map((item) => {
+      const p = byId[item.id];
+      return `${p.name}${p.option ? ` (${p.option})` : ""} × ${item.qty} — ${money(p.price * item.qty)}`;
+    }).join("\n");
     return `
       <aside class="drawer" data-drawer hidden>
         <header>
@@ -200,6 +256,191 @@
           <p>Позвоните нам, если удобнее сразу: <a href="${VP.phoneHref}">${VP.phone}</a>.</p>
         </div>
       </aside>`;
+  }
+
+  const CITIES = ["Москва", "Санкт-Петербург", "Казань", "Новосибирск", "Екатеринбург", "Нижний Новгород", "Краснодар", "Ростов-на-Дону", "Самара", "Воронеж", "Уфа", "Красноярск", "Пермь", "Волгоград", "Тюмень", "Саратов", "Челябинск", "Омск", "Калининград", "Сочи", "Иркутск", "Владивосток", "Хабаровск", "Ярославль", "Тула", "Рязань"];
+  const EN_CITY = {
+    Moscow: "Москва",
+    "Saint Petersburg": "Санкт-Петербург",
+    "St Petersburg": "Санкт-Петербург",
+    Kazan: "Казань",
+    Novosibirsk: "Новосибирск",
+    Yekaterinburg: "Екатеринбург",
+    "Nizhny Novgorod": "Нижний Новгород",
+    Krasnodar: "Краснодар",
+    "Rostov-on-Don": "Ростов-на-Дону",
+    Samara: "Самара",
+    Voronezh: "Воронеж",
+    Ufa: "Уфа",
+    Krasnoyarsk: "Красноярск",
+    Perm: "Пермь",
+    Volgograd: "Волгоград",
+    Tyumen: "Тюмень",
+    Saratov: "Саратов",
+    Chelyabinsk: "Челябинск",
+    Omsk: "Омск",
+    Kaliningrad: "Калининград",
+    Sochi: "Сочи",
+    Irkutsk: "Иркутск",
+    Vladivostok: "Владивосток",
+    Khabarovsk: "Хабаровск",
+    Yaroslavl: "Ярославль",
+    Tula: "Тула",
+    Ryazan: "Рязань"
+  };
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+  }
+
+  function ruCity(data) {
+    const raw = (data && data.city) || "";
+    if (/[а-яё]/i.test(raw)) return raw;
+    return EN_CITY[raw] || "Москва";
+  }
+
+  function initCity() {
+    const label = document.querySelector("[data-city-label]");
+    const pop = document.querySelector("[data-city-pop]");
+    const guessEl = document.querySelector("[data-city-guess]");
+    const ask = document.querySelector("[data-city-ask]");
+    const actions = document.querySelector("[data-city-actions]");
+    const list = document.querySelector("[data-city-list]");
+    const options = document.querySelector("[data-city-options]");
+    const filter = document.querySelector("[data-city-filter]");
+    const openBtn = document.querySelector("[data-city-open]");
+    if (!label || !pop || !openBtn) return;
+
+    const saved = localStorage.getItem("vp-city");
+    if (saved) {
+      label.textContent = saved;
+      guessEl.textContent = saved;
+    }
+
+    function setCity(name, confirmed) {
+      const next = (name || "").trim() || "Москва";
+      localStorage.setItem("vp-city", next);
+      if (confirmed) localStorage.setItem("vp-city-ok", "1");
+      label.textContent = next;
+      guessEl.textContent = next;
+    }
+
+    function renderOptions(query) {
+      const q = query.trim().toLowerCase();
+      const found = CITIES.filter((name) => name.toLowerCase().includes(q));
+      const buttons = found.map((name) => `<button type="button" data-city-pick="${esc(name)}">${esc(name)}</button>`).join("");
+      const typed = query.trim();
+      const custom = typed && !CITIES.some((name) => name.toLowerCase() === typed.toLowerCase())
+        ? `<button type="button" data-city-pick="${esc(typed)}">Доставить в «${esc(typed)}»</button>`
+        : "";
+      options.innerHTML = buttons + custom || `<p class="city-empty">Напишите город — отправим СДЭК.</p>`;
+    }
+
+    function showAsk() {
+      ask.hidden = false;
+      actions.hidden = false;
+      list.hidden = true;
+      pop.hidden = false;
+      openBtn.setAttribute("aria-expanded", "true");
+    }
+
+    function showList() {
+      ask.hidden = true;
+      actions.hidden = true;
+      list.hidden = false;
+      pop.hidden = false;
+      openBtn.setAttribute("aria-expanded", "true");
+      renderOptions(filter.value || "");
+      filter.focus();
+    }
+
+    function closePop(later) {
+      pop.hidden = true;
+      openBtn.setAttribute("aria-expanded", "false");
+      if (later && localStorage.getItem("vp-city-ok") !== "1") sessionStorage.setItem("vp-city-later", "1");
+    }
+
+    openBtn.addEventListener("click", () => {
+      if (!pop.hidden && list.hidden === false) closePop(false);
+      else showList();
+    });
+    document.querySelector("[data-city-yes]").addEventListener("click", () => {
+      setCity(guessEl.textContent, true);
+      closePop(false);
+    });
+    document.querySelector("[data-city-other]").addEventListener("click", showList);
+    filter.addEventListener("input", () => renderOptions(filter.value));
+    options.addEventListener("click", (event) => {
+      const pick = event.target.closest("[data-city-pick]");
+      if (!pick) return;
+      setCity(pick.dataset.cityPick, true);
+      closePop(false);
+    });
+    document.addEventListener("click", (event) => {
+      if (pop.hidden) return;
+      if (event.target.closest("[data-city-pop]") || event.target.closest("[data-city-open]")) return;
+      closePop(true);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !pop.hidden) closePop(true);
+    });
+
+    if (localStorage.getItem("vp-city-ok") === "1" || sessionStorage.getItem("vp-city-later") === "1") return;
+
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 2500);
+    fetch("https://ipwho.is/", { signal: ctrl.signal })
+      .then((res) => res.json())
+      .then((data) => {
+        if (localStorage.getItem("vp-city-ok") === "1") return;
+        const next = ruCity(data);
+        setCity(next, false);
+        if (pop.hidden) showAsk();
+      })
+      .catch(() => {
+        if (localStorage.getItem("vp-city-ok") === "1") return;
+        showAsk();
+      })
+      .finally(() => clearTimeout(timeout));
+  }
+
+  function initVibe() {
+    const stage = document.querySelector("[data-vibe]");
+    if (!stage) return;
+    const slides = [...stage.querySelectorAll("[data-vibe-slide]")];
+    const bar = document.querySelector("[data-vibe-bar]");
+    let index = 0;
+    let timer = 0;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function show(next) {
+      index = (next + slides.length) % slides.length;
+      slides.forEach((slide, i) => {
+        const on = i === index;
+        slide.classList.toggle("is-on", on);
+        slide.setAttribute("aria-hidden", on ? "false" : "true");
+      });
+      if (!bar || reduce) return;
+      bar.classList.remove("is-run");
+      void bar.offsetWidth;
+      bar.classList.add("is-run");
+    }
+
+    function stop() { clearInterval(timer); }
+    function start() {
+      stop();
+      if (reduce) return;
+      timer = setInterval(() => show(index + 1), 4400);
+    }
+
+    stage.addEventListener("mouseenter", stop);
+    stage.addEventListener("mouseleave", start);
+    stage.addEventListener("focusin", stop);
+    stage.addEventListener("focusout", start);
+    document.querySelector("[data-vibe-prev]")?.addEventListener("click", () => { show(index - 1); start(); });
+    document.querySelector("[data-vibe-next]")?.addEventListener("click", () => { show(index + 1); start(); });
+    show(0);
+    start();
   }
 
   function mountChrome() {
@@ -238,6 +479,35 @@
       const add = event.target.closest("[data-add]");
       if (add) {
         addToCart(add.dataset.add, 1);
+        return;
+      }
+      const opt = event.target.closest("[data-card-option]");
+      if (opt) {
+        const chosen = byId[opt.dataset.cardOption];
+        const cardEl = opt.closest(".card");
+        if (!chosen || !cardEl) return;
+        cardEl.querySelectorAll("[data-card-option]").forEach((btn) => {
+          const on = btn === opt;
+          btn.classList.toggle("is-on", on);
+          btn.setAttribute("aria-pressed", String(on));
+        });
+        const imgEl = cardEl.querySelector(".card-photo img");
+        if (imgEl && chosen.image) {
+          imgEl.src = chosen.image;
+          imgEl.alt = chosen.imageAlt || chosen.name;
+        }
+        const titleEl = cardEl.querySelector("h3 a");
+        if (titleEl) titleEl.textContent = chosen.name;
+        const metaEl = cardEl.querySelector("[data-card-meta]");
+        if (metaEl) metaEl.textContent = [chosen.format, chosen.volume].filter(Boolean).join(" · ");
+        const priceEl = cardEl.querySelector("[data-card-price]");
+        if (priceEl) priceEl.textContent = money(chosen.price);
+        const addBtn = cardEl.querySelector("[data-add]");
+        if (addBtn) addBtn.dataset.add = chosen.id;
+        cardEl.querySelectorAll("[data-card-link]").forEach((link) => {
+          link.setAttribute("href", `product.html?id=${chosen.id}`);
+        });
+        rewritePreviewLinks(cardEl);
         return;
       }
       const qty = event.target.closest("[data-qty]");
@@ -298,26 +568,98 @@
       if (event.key === "Escape") closeCart();
     });
 
+    const topSearch = document.querySelector(".top-search");
+    const qParam = pageParams().get("q");
+    if (topSearch && qParam) topSearch.q.value = qParam;
+    topSearch?.addEventListener("submit", (event) => {
+      if (page === "catalog") {
+        event.preventDefault();
+        const field = document.querySelector("[data-search]");
+        if (!field) return;
+        field.value = topSearch.q.value;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        return;
+      }
+      if (!/htmlpreview\.github\.io/i.test(location.hostname)) return;
+      event.preventDefault();
+      const base = document.querySelector("base")?.href || location.search.slice(1);
+      const next = new URL("catalog.html", base);
+      if (topSearch.q.value.trim()) next.searchParams.set("q", topSearch.q.value.trim());
+      location.href = `${location.origin}${location.pathname}?${next.href}`;
+    });
+
     const headerEl = document.querySelector(".site-header");
-    const onScroll = () => headerEl.classList.toggle("is-stuck", window.scrollY > 4);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
+    const syncChrome = () => {
+      document.documentElement.style.setProperty("--chrome", headerEl.offsetHeight + "px");
+      headerEl.classList.toggle("is-stuck", window.scrollY > 4);
+    };
+    syncChrome();
+    window.addEventListener("scroll", syncChrome, { passive: true });
+    window.addEventListener("resize", syncChrome);
+  }
+
+  function impressionCard(item) {
+    const product = byId[item.productId];
+    if (!product) return "";
+    const meta = [product.format, product.volume].filter(Boolean).join(" · ");
+    return `
+      <article class="impression">
+        <p>${item.text}</p>
+        <a href="product.html?id=${product.id}">${product.name}</a>
+        <span>${meta} · ${money(product.price)}</span>
+      </article>`;
+  }
+
+  function reviewCard(item) {
+    const product = byId[item.productId];
+    const name = product ? product.name : "";
+    const href = product ? `product.html?id=${product.id}` : "catalog.html";
+    return `
+      <article class="impression">
+        <p>«${item.text}»</p>
+        <a href="${href}">${name}</a>
+        <span>${item.date}</span>
+      </article>`;
+  }
+
+  function seasonCard(product) {
+    if (!priced(product)) {
+      return `<article class="season-story is-soon"><p class="kicker">Диффузор</p><h3>Скоро</h3></article>`;
+    }
+    return `
+      <a class="season-story" href="product.html?id=${product.id}">
+        <p class="kicker">${[product.volume, money(product.price)].filter(Boolean).join(" · ")}</p>
+        <h3>${product.name}</h3>
+        <p>${product.seasonNote || ""}</p>
+      </a>`;
   }
 
   function initHome() {
-    const hits = VP.products.filter((p) => p.hit);
+    const hits = VP.products.filter((p) => p.hit && priced(p));
     const root = document.querySelector("[data-hits]");
     if (root) root.innerHTML = hits.map(card).join("");
+    const season = document.querySelector("[data-season]");
+    if (season) {
+      season.innerHTML = VP.products
+        .filter((p) => p.hit && p.category === "diffuser")
+        .map(seasonCard)
+        .join("");
+    }
+    const reviews = document.querySelector("[data-reviews]");
+    if (reviews) reviews.innerHTML = (VP.reviews || []).map(reviewCard).join("");
+    const impressions = document.querySelector("[data-impressions]");
+    if (impressions) impressions.innerHTML = (VP.impressions || []).map(impressionCard).join("");
+    initVibe();
   }
 
   function initCatalog() {
     const root = document.querySelector("[data-catalog]");
     if (!root) return;
-    const params = new URLSearchParams(location.search);
+    const params = pageParams();
     const state = {
       cat: params.get("cat") || "all",
       mood: params.get("mood") || "all",
-      q: ""
+      q: (params.get("q") || "").trim().toLowerCase()
     };
     const title = document.querySelector("[data-catalog-title]");
     const intro = document.querySelector("[data-catalog-intro]");
@@ -331,13 +673,24 @@
       machine: "Аппарат для зала, офиса, ресторана или большого дома."
     };
 
+    function matchesQuery(product, q) {
+      const moodText = (product.moods || []).map(moodLabel).join(" ");
+      const hay = `${product.name} ${product.lead || ""} ${product.description || ""} ${product.seasonNote || ""} ${product.format || ""} ${product.volume || ""} ${moodText}`.toLowerCase();
+      if (hay.includes(q)) return true;
+      if (q.length >= 4 && hay.includes(q.slice(0, -1))) return true;
+      return false;
+    }
+
     function apply() {
       const visual = [];
       const list = [];
       VP.products.forEach((product) => {
+        if (!priced(product)) return;
+        if (product.option && VP.products.find((item) => item.group === product.group && item.option)?.id !== product.id) return;
+        if (product.collection === "spring" && !state.q) return;
         if (state.cat !== "all" && !matches(product, state.cat)) return;
         if (state.mood !== "all" && !product.moods.includes(state.mood)) return;
-        if (state.q && !`${product.name} ${product.lead || ""} ${product.format || ""}`.toLowerCase().includes(state.q)) return;
+        if (state.q && !matchesQuery(product, state.q)) return;
         (product.listOnly || !product.image ? list : visual).push(product);
       });
       const groups = {};
@@ -354,7 +707,7 @@
       root.innerHTML = `
         ${visual.length ? `<div class="grid">${visual.map(card).join("")}</div>` : ""}
         ${listHtml}
-        ${!visual.length && !list.length ? `<p class="empty">В этом сочетании пока пусто. Снимите настроение или откройте весь каталог.</p>` : ""}`;
+        ${!visual.length && !list.length ? `<p class="empty">${state.q ? "Ничего не нашлось. Попробуйте другое слово." : "В этом сочетании пока пусто. Снимите настроение или откройте весь каталог."}</p>` : ""}`;
       if (title) {
         const catName = state.cat === "all" ? "Каталог" : catLabel(state.cat);
         const moodName = state.mood === "all" ? "" : moodLabel(state.mood);
@@ -367,11 +720,15 @@
           : button.dataset.value === state.mood;
         button.setAttribute("aria-pressed", on ? "true" : "false");
       });
+      rewritePreviewLinks(root);
+      if (/htmlpreview\.github\.io/i.test(location.hostname)) return;
       const url = new URL(location.href);
       url.searchParams.delete("cat");
       url.searchParams.delete("mood");
+      url.searchParams.delete("q");
       if (state.cat !== "all") url.searchParams.set("cat", state.cat);
       if (state.mood !== "all") url.searchParams.set("mood", state.mood);
+      if (state.q) url.searchParams.set("q", state.q);
       history.replaceState(null, "", url);
     }
 
@@ -381,8 +738,12 @@
       state[button.dataset.filter] = button.dataset.value;
       apply();
     });
-    document.querySelector("[data-search]").addEventListener("input", (event) => {
+    const searchInput = document.querySelector("[data-search]");
+    if (searchInput && params.get("q")) searchInput.value = params.get("q");
+    searchInput.addEventListener("input", (event) => {
       state.q = event.target.value.trim().toLowerCase();
+      const top = document.querySelector(".top-search input");
+      if (top && top.value !== event.target.value) top.value = event.target.value;
       apply();
     });
     apply();
@@ -391,31 +752,66 @@
   function initProduct() {
     const root = document.querySelector("[data-product]");
     if (!root) return;
-    const id = new URLSearchParams(location.search).get("id");
+    const id = pageParams().get("id");
     const product = byId[id];
     if (!product) {
       root.innerHTML = `<div class="page-intro"><h1>Такой позиции нет</h1><p><a href="catalog.html">Вернуться в каталог</a></p></div>`;
       return;
     }
-    document.title = `${product.name} — V-PLANET`;
-    const specs = (product.specs || []).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
+    const specRows = [...(product.specs || [])];
+    if (product.lifespan) specRows.push(["Срок жизни аромата", product.lifespan]);
+    if (product.coverage) specRows.push(["Площадь", product.coverage]);
+    const specs = specRows.map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("");
     const use = (product.use || []).map((line) => `<li>${line}</li>`).join("");
+    const pair = byId[product.pair];
+    const pairHtml = priced(pair)
+      ? `<aside class="pair">
+          <p class="kicker">Пара</p>
+          <h2><a href="product.html?id=${pair.id}">${pair.name}</a></h2>
+          <p>${[pair.format, pair.volume].filter(Boolean).join(" · ")}</p>
+          <p class="card-price">${money(pair.price)}</p>
+          <button class="solid" type="button" data-add="${pair.id}">В корзину</button>
+        </aside>`
+      : "";
+    const quotes = [
+      ...(VP.reviews || []).filter((item) => item.productId === product.id).map((item) => `<blockquote class="impression impression-single"><p>«${item.text}»</p><span>${item.date}</span></blockquote>`),
+      ...(VP.impressions || []).filter((item) => item.productId === product.id).map((item) => `<blockquote class="impression impression-single"><p>${item.text}</p><span>Слух мастерской, не отзыв покупателя</span></blockquote>`)
+    ].join("");
     const related = VP.products
-      .filter((item) => item.id !== product.id && item.image && (item.id === product.pair || item.moods.some((mood) => product.moods.includes(mood))))
-      .sort((a, b) => Number(b.id === product.pair) - Number(a.id === product.pair))
+      .filter((item) => item.id !== product.id && item.id !== product.pair && priced(item) && item.image && (item.moods || []).some((mood) => (product.moods || []).includes(mood)))
       .slice(0, 3);
+    const canBuy = priced(product);
+    const siblings = product.group
+      ? VP.products.filter((item) => item.group === product.group && priced(item))
+      : [];
+    const scents = siblings.length > 1
+      ? `<div class="scents" aria-label="${product.option ? "Размер" : "Аромат"}">${siblings.map((item) => `<a href="product.html?id=${item.id}"${item.id === product.id ? ' class="is-on" aria-current="true"' : ""}>${item.option || item.scent || item.name}</a>`).join("")}</div>`
+      : "";
+    const groupTitle = {
+      "diffuser-200": `Аромадиффузор с палочками ${product.name}, 200 мл — V-PLANET`,
+      "glass-250": `Ароматическая свеча в стакане ${product.name}, 250 мл — V-PLANET`,
+      "glass-350": `Ароматическая свеча в стакане ${product.name}, 350 мл — V-PLANET`,
+      "jar-100": `Свеча в банке ${product.name}, 100 мл — V-PLANET`,
+      "plaster-cube": `Ароматическая свеча в гипсовом кубе ${product.name} — V-PLANET`,
+      "plaster-sphere": `Ароматическая свеча в гипсовом шаре ${product.name} — V-PLANET`,
+      "plaster-cup": `Ароматическая свеча в гипсовом стаканчике ${product.name} — V-PLANET`,
+      "plaster-miya": `Парные гипсовые стаканчики МИЯ ${product.scent || product.name} — V-PLANET`,
+      "plaster-skull": `Ароматическая свеча ${product.name} — V-PLANET`
+    };
+    document.title = groupTitle[product.group] || `${product.name} — V-PLANET`;
     root.innerHTML = `
       <article class="product wrap">
         <div>
-          <div class="product-photo">${product.image ? `<img src="${product.image}" alt="${product.imageAlt || product.name}">` : `<div class="page-intro"><p class="kicker">${product.format || ""}</p><h2>${product.name}</h2><p>Фото этой формы добавим следующим шагом. Цена и срок уже можно положить в корзину.</p></div>`}</div>
+          <div class="product-photo">${product.image ? `<img src="${product.image}" alt="${product.imageAlt || product.name}" data-main-photo>` : `<div class="page-intro"><p class="kicker">${product.format || ""}</p><h2>${product.name}</h2><p>Фото и цена этой позиции появятся, когда мастерская их назовёт.</p></div>`}</div>
+          ${(product.gallery || []).length ? `<div class="product-gallery">${[product.image, ...product.gallery].filter(Boolean).map((src) => `<button type="button" data-photo="${src}"><img src="${src}" alt=""></button>`).join("")}</div>` : ""}
           ${product.imageCaption ? `<p class="caption">${product.imageCaption}</p>` : ""}
         </div>
         <div>
-          <p class="kicker">${catLabel(product.category)} · ${product.moods.map(moodLabel).join(" · ")}</p>
+          <p class="kicker">${[catLabel(product.category), product.format, product.volume, (product.moods || []).map(moodLabel).filter(Boolean).join(" · ")].filter(Boolean).join(" · ")}</p>
           <h1>${product.name}</h1>
-          <p class="lead">${product.lead || ""}</p>
-          <div class="price-lg">${money(product.price)}</div>
-          <p class="eta">${VP.eta}</p>
+          ${scents}
+          ${product.lead ? `<p class="lead">${product.lead}</p>` : ""}
+          ${canBuy ? `<div class="price-lg">${money(product.price)}</div><p class="eta">${VP.eta}</p>
           <div style="margin-top:16px">
             <span class="qty">
               <button type="button" data-local-qty="-1">−</button>
@@ -423,18 +819,20 @@
               <button type="button" data-local-qty="1">+</button>
             </span>
             <button class="solid" type="button" data-add-qty>В корзину</button>
-          </div>
-          <table class="specs">${specs}</table>
+          </div>` : `<p class="price-lg">Скоро</p><button class="solid" type="button" disabled>Скоро</button>`}
+          ${specs ? `<table class="specs">${specs}</table>` : ""}
+          ${quotes}
           <div class="prose">
-            <p>${product.description || ""}</p>
+            ${product.description ? `<p>${product.description}</p>` : ""}
             ${use ? `<h2>Как пользоваться</h2><ul>${use}</ul>` : ""}
+            ${pairHtml}
           </div>
         </div>
       </article>
-      <section class="section wrap related">
+      ${related.length ? `<section class="section wrap related">
         <div class="section-head"><h2>Рядом по настроению</h2></div>
         <div class="grid">${related.map(card).join("")}</div>
-      </section>`;
+      </section>` : ""}`;
     let qty = 1;
     root.addEventListener("click", (event) => {
       const step = event.target.closest("[data-local-qty]");
@@ -443,7 +841,52 @@
         root.querySelector("[data-local]").textContent = String(qty);
       }
       if (event.target.closest("[data-add-qty]")) addToCart(product.id, qty);
+      const thumb = event.target.closest("[data-photo]");
+      const main = root.querySelector("[data-main-photo]");
+      if (thumb && main) main.src = thumb.dataset.photo;
     });
+  }
+
+  function initWorld() {
+    const root = document.querySelector("[data-world]");
+    if (!root) return;
+    const id = pageParams().get("id");
+    const world = (VP.worlds || []).find((item) => item.id === id);
+    if (!world) {
+      root.innerHTML = `<div class="page-intro"><h1>Такого мира нет</h1><p><a href="index.html">На главную</a></p></div>`;
+      return;
+    }
+    document.title = world.seoTitle;
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", world.seoDescription);
+    const seenGroups = new Set();
+    const products = VP.products.filter((product) => {
+      if (product.world !== world.id || !priced(product)) return false;
+      if (product.option && product.group) {
+        if (seenGroups.has(product.group)) return false;
+        seenGroups.add(product.group);
+      }
+      return true;
+    });
+    const visual = products.filter((product) => product.image && !product.listOnly);
+    const list = products.filter((product) => !product.image || product.listOnly);
+    const empty = {
+      flower: "Бутоны и букеты поставим на полку, когда Вера подтвердит, что на снимках её изделия.",
+      ar: "Свечи с QR-кодом ещё не выложены отдельными позициями. Обычные свечи этой пометки не получают."
+    };
+    root.innerHTML = `
+      <div class="world-cover">
+        <div>
+          <p class="kicker">Мир</p>
+          <h1>${world.h1}</h1>
+          <p class="lead">${world.line}</p>
+          <p class="eta">${VP.eta}</p>
+        </div>
+        <img src="${world.image}" alt="${world.imageAlt || ""}">
+      </div>
+      ${visual.length ? `<div class="grid">${visual.map(card).join("")}</div>` : ""}
+      ${list.length ? `<div class="list-block"><h3>Ещё в этом мире</h3><p class="eta">${VP.eta}</p>${list.map(row).join("")}</div>` : ""}
+      ${!products.length ? `<p class="empty">${empty[world.id] || "В этом мире пока нет позиций с ценой."}</p>` : ""}`;
   }
 
   function initB2B() {
@@ -462,8 +905,11 @@
 
   mountChrome();
   bind();
+  initCity();
   initHome();
   initCatalog();
   initProduct();
+  initWorld();
   initB2B();
+  rewritePreviewLinks();
 })();
