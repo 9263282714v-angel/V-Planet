@@ -219,7 +219,7 @@
               <img src="${product.image || "images/logo.png"}" alt="">
               <div>
                 <b>${product.name}</b>
-                <div class="eta">${product.volume || ""}</div>
+                <div class="eta">${[product.format, product.volume].filter(Boolean).join(" · ")}</div>
                 <div class="qty">
                   <button type="button" data-qty="${product.id}" data-delta="-1">−</button>
                   <span>${item.qty}</span>
@@ -491,6 +491,13 @@
           btn.classList.toggle("is-on", on);
           btn.setAttribute("aria-pressed", String(on));
         });
+        const imgEl = cardEl.querySelector(".card-photo img");
+        if (imgEl && chosen.image) {
+          imgEl.src = chosen.image;
+          imgEl.alt = chosen.imageAlt || chosen.name;
+        }
+        const titleEl = cardEl.querySelector("h3 a");
+        if (titleEl) titleEl.textContent = chosen.name;
         const metaEl = cardEl.querySelector("[data-card-meta]");
         if (metaEl) metaEl.textContent = [chosen.format, chosen.volume].filter(Boolean).join(" · ");
         const priceEl = cardEl.querySelector("[data-card-price]");
@@ -778,13 +785,18 @@
       ? VP.products.filter((item) => item.group === product.group && priced(item))
       : [];
     const scents = siblings.length > 1
-      ? `<div class="scents" aria-label="${product.option ? "Размер" : "Аромат"}">${siblings.map((item) => `<a href="product.html?id=${item.id}"${item.id === product.id ? ' class="is-on" aria-current="true"' : ""}>${item.option || item.name}</a>`).join("")}</div>`
+      ? `<div class="scents" aria-label="${product.option ? "Размер" : "Аромат"}">${siblings.map((item) => `<a href="product.html?id=${item.id}"${item.id === product.id ? ' class="is-on" aria-current="true"' : ""}>${item.option || item.scent || item.name}</a>`).join("")}</div>`
       : "";
     const groupTitle = {
       "diffuser-200": `Аромадиффузор с палочками ${product.name}, 200 мл — V-PLANET`,
       "glass-250": `Ароматическая свеча в стакане ${product.name}, 250 мл — V-PLANET`,
       "glass-350": `Ароматическая свеча в стакане ${product.name}, 350 мл — V-PLANET`,
-      "jar-100": `Свеча в банке ${product.name}, 100 мл — V-PLANET`
+      "jar-100": `Свеча в банке ${product.name}, 100 мл — V-PLANET`,
+      "plaster-cube": `Ароматическая свеча в гипсовом кубе ${product.name} — V-PLANET`,
+      "plaster-sphere": `Ароматическая свеча в гипсовом шаре ${product.name} — V-PLANET`,
+      "plaster-cup": `Ароматическая свеча в гипсовом стаканчике ${product.name} — V-PLANET`,
+      "plaster-miya": `Парные гипсовые стаканчики МИЯ ${product.scent || product.name} — V-PLANET`,
+      "plaster-skull": `Ароматическая свеча ${product.name} — V-PLANET`
     };
     document.title = groupTitle[product.group] || `${product.name} — V-PLANET`;
     root.innerHTML = `
@@ -795,7 +807,7 @@
           ${product.imageCaption ? `<p class="caption">${product.imageCaption}</p>` : ""}
         </div>
         <div>
-          <p class="kicker">${[catLabel(product.category), product.volume, (product.moods || []).map(moodLabel).filter(Boolean).join(" · ")].filter(Boolean).join(" · ")}</p>
+          <p class="kicker">${[catLabel(product.category), product.format, product.volume, (product.moods || []).map(moodLabel).filter(Boolean).join(" · ")].filter(Boolean).join(" · ")}</p>
           <h1>${product.name}</h1>
           ${scents}
           ${product.lead ? `<p class="lead">${product.lead}</p>` : ""}
