@@ -575,10 +575,6 @@
     const hits = VP.products.filter((p) => p.hit && priced(p));
     const root = document.querySelector("[data-hits]");
     if (root) root.innerHTML = hits.map(card).join("");
-    const spring = document.querySelector("[data-spring]");
-    if (spring) {
-      spring.innerHTML = VP.products.filter((product) => product.springHome && priced(product)).map(card).join("");
-    }
     const season = document.querySelector("[data-season]");
     if (season) {
       season.innerHTML = VP.products
@@ -627,6 +623,7 @@
       const list = [];
       VP.products.forEach((product) => {
         if (!priced(product)) return;
+        if (product.collection === "spring" && !state.q) return;
         if (state.cat !== "all" && !matches(product, state.cat)) return;
         if (state.mood !== "all" && !product.moods.includes(state.mood)) return;
         if (state.q && !matchesQuery(product, state.q)) return;
