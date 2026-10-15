@@ -4,6 +4,22 @@
 
   const money = (n) => new Intl.NumberFormat("ru-RU").format(n) + " ₽";
   const page = document.body.dataset.page || "";
+  function pageParams() {
+    const raw = location.search.slice(1);
+    if (!/^https?:\/\//i.test(raw)) return new URLSearchParams(raw);
+    const idx = raw.indexOf("?");
+    return new URLSearchParams(idx >= 0 ? raw.slice(idx + 1) : "");
+  }
+  function rewritePreviewLinks(scope) {
+    if (!/htmlpreview\.github\.io/i.test(location.hostname)) return;
+    const base = document.querySelector("base")?.href || location.search.slice(1);
+    (scope || document).querySelectorAll("a[href]").forEach((a) => {
+      const href = a.getAttribute("href") || "";
+      if (!href || href.startsWith("#") || /^(https?:|mailto:|tel:|\/\/)/i.test(href)) return;
+      if (!/\.html(\?|$)/i.test(href)) return;
+      a.href = `${location.origin}${location.pathname}?${new URL(href, base).href}`;
+    });
+  }
 
   function priced(product) {
     return !!product && typeof product.price === "number" && product.price > 0;
@@ -514,15 +530,23 @@
     });
 
     const topSearch = document.querySelector(".top-search");
-    const qParam = new URLSearchParams(location.search).get("q");
+    const qParam = pageParams().get("q");
     if (topSearch && qParam) topSearch.q.value = qParam;
     topSearch?.addEventListener("submit", (event) => {
-      if (page !== "catalog") return;
+      if (page === "catalog") {
+        event.preventDefault();
+        const field = document.querySelector("[data-search]");
+        if (!field) return;
+        field.value = topSearch.q.value;
+        field.dispatchEvent(new Event("input", { bubbles: true }));
+        return;
+      }
+      if (!/htmlpreview\.github\.io/i.test(location.hostname)) return;
       event.preventDefault();
-      const field = document.querySelector("[data-search]");
-      if (!field) return;
-      field.value = topSearch.q.value;
-      field.dispatchEvent(new Event("input", { bubbles: true }));
+      const base = document.querySelector("base")?.href || location.search.slice(1);
+      const next = new URL("catalog.html", base);
+      if (topSearch.q.value.trim()) next.searchParams.set("q", topSearch.q.value.trim());
+      location.href = `${location.origin}${location.pathname}?${next.href}`;
     });
 
     const headerEl = document.querySelector(".site-header");
@@ -592,7 +616,7 @@
   function initCatalog() {
     const root = document.querySelector("[data-catalog]");
     if (!root) return;
-    const params = new URLSearchParams(location.search);
+    const params = pageParams();
     const state = {
       cat: params.get("cat") || "all",
       mood: params.get("mood") || "all",
@@ -656,6 +680,8 @@
           : button.dataset.value === state.mood;
         button.setAttribute("aria-pressed", on ? "true" : "false");
       });
+      rewritePreviewLinks(root);
+      if (/htmlpreview\.github\.io/i.test(location.hostname)) return;
       const url = new URL(location.href);
       url.searchParams.delete("cat");
       url.searchParams.delete("mood");
@@ -686,7 +712,7 @@
   function initProduct() {
     const root = document.querySelector("[data-product]");
     if (!root) return;
-    const id = new URLSearchParams(location.search).get("id");
+    const id = pageParams().get("id");
     const product = byId[id];
     if (!product) {
       root.innerHTML = `<div class="page-intro"><h1>Такой позиции нет</h1><p><a href="catalog.html">Вернуться в каталог</a></p></div>`;
@@ -779,7 +805,7 @@
   function initWorld() {
     const root = document.querySelector("[data-world]");
     if (!root) return;
-    const id = new URLSearchParams(location.search).get("id");
+    const id = pageParams().get("id");
     const world = (VP.worlds || []).find((item) => item.id === id);
     if (!world) {
       root.innerHTML = `<div class="page-intro"><h1>Такого мира нет</h1><p><a href="index.html">На главную</a></p></div>`;
@@ -832,4 +858,5 @@
   initProduct();
   initWorld();
   initB2B();
+  rewritePreviewLinks();
 })();
